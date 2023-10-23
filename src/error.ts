@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 20:10:53
- * @LastEditTime: 2023-10-18 11:55:29
+ * @LastEditTime: 2023-10-21 19:08:40
  */
 import { Context } from 'koa'
 
@@ -9,7 +9,11 @@ import { Context } from 'koa'
 export default async (ctx: Context, next: () => Promise<any>) => {
     try {
         await next()
-    } catch (error) {
-        //
+    } catch (error: any) {
+        ctx.body = {
+            msg: error.msg,
+            errorCode: error.errorCode
+        }
+        ctx.status = error.statusCode
     }
 }

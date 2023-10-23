@@ -1,32 +1,47 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-10-18 12:10:22
+ * @LastEditTime: 2023-10-22 12:15:26
  */
 import * as fs from 'fs'
 import * as path from 'path'
 import { merge } from 'lodash'
+import { HttpException } from './exception'
+import { ErrorCode } from './errorcode'
 
 let appConfig: Record<string, any> = {}
 const defaultConfigPath = 'config' // 配置目录, 默认会读取./config目录下的所有配置文件
+
+// 加载配置
+const loadConfig = (configDir: string) => {
+    // 只有存在该目录才会去合并
+    if (fs.existsSync(configDir) && fs.statSync(configDir).isDirectory()) {
+        fs.readdirSync(configDir).forEach((file) => {
+            const modulePath = path.join(configDir, file)
+            if (fs.statSync(modulePath).isDirectory()) {
+                loadConfig(modulePath)
+            } else if (file.endsWith('.ts')) {
+                import(modulePath).then((module) => {
+                    if (module && module.default) {
+                        appConfig[file.replace('.ts', '')] = module.default
+                    }
+                }).catch(() => {
+                    throw new HttpException({
+                        msg: '配置加载错误',
+                        errorCode: ErrorCode.ERROR_ROUTE,
+                        statusCode: 500
+                    })
+                })
+            }
+        })
+    }
+}
 
 // 读取配置属性
 export const getConfig = (configPath?: string) => {
     // 配置目录, 默认会读取./config目录下的所有配置文件
     const configDir = path.resolve(process.cwd(), configPath ?? defaultConfigPath)
-    // 只有存在该目录才会去合并
-    if (fs.existsSync(configDir) && fs.statSync(configDir).isDirectory()) {
-        fs.readdirSync(configDir).forEach((file) => {
-            // 必须为ts文件并且导出了内容
-            if (file.endsWith('.ts')) {
-                const modulePath = path.join(configDir, file)
-                const moduleContent = require(modulePath)
-                if (moduleContent && moduleContent.default) {
-                    appConfig[file.replace('.ts', '')] = moduleContent.default
-                }
-            }
-        })
-    }
+    loadConfig(configDir)
     return merge({
         app: {
             port: 5985, // 项目启动端口
