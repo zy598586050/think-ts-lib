@@ -27,7 +27,7 @@ exports.setConfig = exports.getConfig = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-10-22 12:15:26
+ * @LastEditTime: 2023-10-24 20:55:50
  */
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
@@ -79,7 +79,9 @@ const getConfig = (configPath) => {
             log_error_pattern: 'yyy-MM-dd.log',
             route_path: 'route',
             controller_path: 'controller',
-            middleware_path: 'middleware', // 默认中间件文件目录地址
+            middleware_path: 'middleware',
+            view_path: 'views',
+            static_path: 'public', // 静态资源目录
         }
     }, appConfig);
 };

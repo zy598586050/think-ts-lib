@@ -1,11 +1,12 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 15:43:32
- * @LastEditTime: 2023-10-18 11:41:28
+ * @LastEditTime: 2023-10-24 20:57:29
  */
-
+import * as path from 'path'
 import Koa from 'koa'
 import KoaBody from 'koa-body'
+import KoaStatic from 'koa-static'
 import figlet from 'figlet'
 import ip from 'ip'
 import { setConfig, getConfig } from './config'
@@ -26,6 +27,7 @@ export default (cfg: Record<string, any> = {}) => {
         .use(KoaBody(mergeConfig?.app?.koaBody))
         .use(router.routes())
         .use(router.allowedMethods())
+        .use(KoaStatic(path.resolve(process.cwd(), mergeConfig?.app?.static_path)))
         .listen(mergeConfig?.app?.port)
     console.timeEnd('用时')
 

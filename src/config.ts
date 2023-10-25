@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-10-22 12:15:26
+ * @LastEditTime: 2023-10-24 20:55:50
  */
 import * as fs from 'fs'
 import * as path from 'path'
@@ -56,6 +56,8 @@ export const getConfig = (configPath?: string) => {
             route_path: 'route', // 默认路由文件目录地址
             controller_path: 'controller', // 默认控制器文件目录地址
             middleware_path: 'middleware', // 默认中间件文件目录地址
+            view_path: 'views', // 默认视图目录地址
+            static_path: 'public', // 静态资源目录
         }
     }, appConfig)
 }

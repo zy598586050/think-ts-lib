@@ -3,16 +3,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.appConfig = void 0;
-/*
- * @Author: zhangyu
- * @Date: 2023-10-17 10:20:31
- * @LastEditTime: 2023-10-18 11:29:29
- */
+exports.GetParams = exports.ShowSuccess = exports.Controller = exports.appConfig = void 0;
 const start_1 = __importDefault(require("./start"));
 const config_1 = require("./config");
+const controller_1 = require("./controller");
+Object.defineProperty(exports, "Controller", { enumerable: true, get: function () { return controller_1.Controller; } });
+Object.defineProperty(exports, "ShowSuccess", { enumerable: true, get: function () { return controller_1.ShowSuccess; } });
+Object.defineProperty(exports, "GetParams", { enumerable: true, get: function () { return controller_1.GetParams; } });
 exports.appConfig = (0, config_1.getConfig)();
 exports.default = {
     start: start_1.default,
-    appConfig: (0, config_1.getConfig)()
+    appConfig: (0, config_1.getConfig)(),
+    Controller: controller_1.Controller,
+    ShowSuccess: controller_1.ShowSuccess,
+    ApiException: controller_1.ApiException,
+    GetParams: controller_1.GetParams
 };

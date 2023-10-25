@@ -21,13 +21,19 @@
     "@types/koa": "^2.13.9",
     "@types/koa-router": "^7.4.5",
     "@types/lodash": "^4.14.199",
+    "@vue/server-renderer": "^3.3.6",
     "figlet": "^1.6.0",
     "ip": "^1.1.8",
     "koa": "^2.14.2",
     "koa-body": "^6.0.1",
     "koa-router": "^11.0.2",
+    "koa-static": "^5.0.0",
     "lodash": "^4.17.21",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vue": "^3.3.6"
+  },
+  "devDependencies": {
+    "@types/koa-static": "^4.0.3"
   }
 }

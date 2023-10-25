@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 15:49:40
- * @LastEditTime: 2023-10-23 23:21:18
+ * @LastEditTime: 2023-10-24 14:57:37
  */
 import { Context } from 'koa'
 import koaRouter from 'koa-router'
@@ -29,63 +29,38 @@ const route: RouteType = {
     get(url: string, str: string, middleware?: () => void) {
         // 检测路由是否重复
         hasRepeatRoute(url)
-        // 检测控制器方法是否存在
-        hasControllerFun(str)
+        // 检测控制器方法是否存在, 存在就返回该方法
+        const fn: Promise<(ctx: Context) => Promise<RESULT>> = hasControllerFun(str)
         router.get(url, async (ctx: Context) => {
             // 动态执行控制器的方法
-            // const result: RESULT = await runControllerFun(str)
-            // ctx.body = result.body
-            // ctx.status = result.status
+            const { body, status } = await (await fn)(ctx)
+            ctx.body = body
+            ctx.status = status
         })
     }
 }
 
-// 动态执行控制器方法
-const runControllerFun = async (str: string): Promise<RESULT> => {
-    try {
-        const strArray = str.split('/')
-        const beforePath = strArray.splice(0, strArray.length - 1).join('/')
-        const afterPath = strArray[strArray.length - 1]
-        const importUrl = path.resolve(process.cwd(), `${config.app.controller_path}${beforePath}.ts`)
-        console.log(importUrl)
-        await import(importUrl)
-    } catch (error) {
+// 检测控制器方法是否存在
+const hasControllerFun = async (str: string): Promise<(ctx: Context) => Promise<RESULT>> => {
+    let fn = null
+    if (!str.includes('/')) {
         throw new HttpException({
             msg: `路由控制器方法配置有误[${str}]`,
             errorCode: ErrorCode.ERROR_ROUTE,
             statusCode: 500
         })
     }
-    return {
-        body: {},
-        status: 200
-    }
-}
 
-// 检测控制器方法是否存在
-const hasControllerFun = (str: string) => {
-    if (str.includes('/')) {
-        const strArray = str.split('/')
-        const beforePath = strArray.splice(0, strArray.length - 1).join('/')
-        if (beforePath) {
-            const importUrl = path.resolve(process.cwd(), `${config.app.controller_path}${beforePath}.ts`)
-            import(importUrl).then((module) => {
-                try {
-                    //new module.default()[]
-                } catch (error) {
-                    throw new HttpException({
-                        msg: `路由控制器方法配置有误[${str}]`,
-                        errorCode: ErrorCode.ERROR_ROUTE,
-                        statusCode: 500
-                    })
-                }
-            }).catch(() => {
-                throw new HttpException({
-                    msg: `路由控制器方法配置有误[${str}]`,
-                    errorCode: ErrorCode.ERROR_ROUTE,
-                    statusCode: 500
-                })
-            })
+    const strArray = str.split('/')
+    const beforePath = strArray.slice(0, -1).join('/')
+    const importUrl = path.resolve(process.cwd(), `${config.app.controller_path}/${beforePath}.ts`)
+
+    try {
+        const module = await import(importUrl)
+        const controller = new module.default()
+
+        if (typeof controller[strArray[strArray.length - 1]] === 'function') {
+            fn = controller[strArray[strArray.length - 1]]
         } else {
             throw new HttpException({
                 msg: `路由控制器方法配置有误[${str}]`,
@@ -93,13 +68,15 @@ const hasControllerFun = (str: string) => {
                 statusCode: 500
             })
         }
-    } else {
+    } catch (error) {
+        console.log(error)
         throw new HttpException({
             msg: `路由控制器方法配置有误[${str}]`,
             errorCode: ErrorCode.ERROR_ROUTE,
             statusCode: 500
         })
     }
+    return fn
 }
 
 // 判断路由是否重复

@@ -40,35 +40,52 @@ const route = {
     get(url, str, middleware) {
         // 检测路由是否重复
         hasRepeatRoute(url);
+        // 检测控制器方法是否存在, 存在就返回该方法
+        const fn = hasControllerFun(str);
         router.get(url, async (ctx) => {
             // 动态执行控制器的方法
-            const result = await runControllerFun(str);
-            ctx.body = result.body;
-            ctx.status = result.status;
+            const { body, status } = await (await fn)(ctx);
+            ctx.body = body;
+            ctx.status = status;
         });
     }
 };
-// 动态执行控制器方法
-const runControllerFun = async (str) => {
-    try {
-        const strArray = str.split('/');
-        const beforePath = strArray.splice(0, strArray.length - 1).join('/');
-        const afterPath = strArray[strArray.length - 1];
-        const importUrl = path.resolve(process.cwd(), `${config.app.controller_path}${beforePath}.ts`);
-        console.log(importUrl);
-        await Promise.resolve(`${importUrl}`).then(s => __importStar(require(s)));
-    }
-    catch (error) {
+// 检测控制器方法是否存在
+const hasControllerFun = async (str) => {
+    let fn = null;
+    if (!str.includes('/')) {
         throw new exception_1.HttpException({
             msg: `路由控制器方法配置有误[${str}]`,
             errorCode: errorcode_1.ErrorCode.ERROR_ROUTE,
             statusCode: 500
         });
     }
-    return {
-        body: {},
-        status: 200
-    };
+    const strArray = str.split('/');
+    const beforePath = strArray.slice(0, -1).join('/');
+    const importUrl = path.resolve(process.cwd(), `${config.app.controller_path}/${beforePath}.ts`);
+    try {
+        const module = await Promise.resolve(`${importUrl}`).then(s => __importStar(require(s)));
+        const controller = new module.default();
+        if (typeof controller[strArray[strArray.length - 1]] === 'function') {
+            fn = controller[strArray[strArray.length - 1]];
+        }
+        else {
+            throw new exception_1.HttpException({
+                msg: `路由控制器方法配置有误[${str}]`,
+                errorCode: errorcode_1.ErrorCode.ERROR_ROUTE,
+                statusCode: 500
+            });
+        }
+    }
+    catch (error) {
+        console.log(error);
+        throw new exception_1.HttpException({
+            msg: `路由控制器方法配置有误[${str}]`,
+            errorCode: errorcode_1.ErrorCode.ERROR_ROUTE,
+            statusCode: 500
+        });
+    }
+    return fn;
 };
 // 判断路由是否重复
 const hasRepeatRoute = (url) => {

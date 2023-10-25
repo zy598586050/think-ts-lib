@@ -6,6 +6,7 @@ exports.default = async (ctx, next) => {
         await next();
     }
     catch (error) {
+        console.log(error);
         ctx.body = {
             msg: error.msg,
             errorCode: error.errorCode

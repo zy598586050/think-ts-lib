@@ -4,7 +4,7 @@ exports.ErrorCode = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-18 10:15:00
- * @LastEditTime: 2023-10-18 10:17:39
+ * @LastEditTime: 2023-10-24 19:58:46
  */
 var ErrorCode;
 (function (ErrorCode) {
@@ -16,4 +16,5 @@ var ErrorCode;
     ErrorCode[ErrorCode["ERROR_REDIS"] = 50000] = "ERROR_REDIS";
     ErrorCode[ErrorCode["ERROR_ES"] = 60000] = "ERROR_ES";
     ErrorCode[ErrorCode["ERROR_MONGODB"] = 70000] = "ERROR_MONGODB";
+    ErrorCode[ErrorCode["ERROR_VIEW"] = 80000] = "ERROR_VIEW";
 })(ErrorCode || (exports.ErrorCode = ErrorCode = {}));
