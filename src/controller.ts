@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-10-25 10:07:31
+ * @LastEditTime: 2023-10-28 17:04:01
  */
 import * as fs from 'fs'
 import * as path from 'path'
@@ -10,7 +10,8 @@ import { HttpException } from './exception'
 import { getConfig } from './config'
 import { ErrorCode } from './errorcode'
 import { createSSRApp } from 'vue'
-import { renderToString } from '@vue/server-renderer'
+import { renderToString } from 'vue/server-renderer'
+import { getVueTemplate } from './view'
 
 type VueType = 'vue' | 'react'
 const config = getConfig()
@@ -79,16 +80,16 @@ export class Controller {
 
     /**
      * 视图渲染
-     * @param url 视图路径
+     * @param url 视图路径 后缀可带可不带
      * @param data 视图的数据
      * @param type 模板引擎的类型，默认是vue, 可以指定为react
      * @returns 
      */
-    View(url: string, data: Object, type: VueType = 'vue') {
+    async View(url: string, data: Object, type: VueType = 'vue') {
         if (type === 'vue') {
             let template = ''
             try {
-                const viewPath = path.resolve(process.cwd(), `${config.app.view_path}/${url}`)
+                const viewPath = path.resolve(process.cwd(), `${config.app.view_path}/${url}${url.endsWith('.vue') ? '' : '.vue'}`)
                 template = fs.readFileSync(viewPath, 'utf-8')
             } catch (error) {
                 console.log(error)
@@ -98,14 +99,27 @@ export class Controller {
                     statusCode: 404
                 })
             }
-            const app = createSSRApp({
-                data() {
-                    return data
-                },
-                template
-            })
-            return renderToString(app)
-        } else if (type === 'react') {}
+            let body = ''
+            try {
+                const app = createSSRApp({
+                    data() {
+                        return data
+                    },
+                    template: getVueTemplate(template)
+                })
+                body = await renderToString(app)
+            } catch (error) {
+                console.log(error)
+                throw new HttpException({
+                    msg: '视图文件解析失败',
+                    errorCode: ErrorCode.ERROR_VIEW,
+                    statusCode: 404
+                })
+            }
+            return { body, status: 200 }
+        } else if (type === 'react') {
+            // TODO
+        }
     }
 }
 
