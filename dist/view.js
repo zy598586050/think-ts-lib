@@ -7,7 +7,7 @@ exports.importVue = exports.htmlView = exports.createApp = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-28 16:59:04
- * @LastEditTime: 2023-11-09 18:23:28
+ * @LastEditTime: 2023-11-09 21:26:11
  */
 const vue_1 = require("vue");
 const compiler_sfc_1 = require("@vue/compiler-sfc");
@@ -126,7 +126,7 @@ const importVue = (url) => {
     let vueCode = '';
     let template = '';
     let style = '';
-    let obj = {};
+    let vueObj = {};
     try {
         const viewPath = path_1.default.resolve(process.cwd(), `${config.app.view_path}/${url}${url.endsWith('.vue') ? '' : '.vue'}`);
         vueCode = fs_1.default.readFileSync(viewPath, 'utf-8');
@@ -143,8 +143,21 @@ const importVue = (url) => {
         const { descriptor } = (0, compiler_sfc_1.parse)(vueCode);
         template = descriptor?.template?.content || '';
         style = descriptor.styles.map(v => v.content).join();
-        const code = `(${descriptor?.script?.content?.replace('export default', '')?.replace(/\r\n/g, '') || ''})`;
-        obj = new Function(`return ${code}`)() || {};
+        const codeString = descriptor?.script?.content || '';
+        const objStr = codeString.split('export default');
+        if (objStr?.[1]) {
+            const code = `(${objStr?.[1]?.replace(/\r\n/g, '') || ''})`;
+            vueObj = new Function(`return ${code}`)() || {};
+            if (vueObj?.components) {
+                Object.keys(vueObj?.components).forEach(key => {
+                    const iv = (0, exports.importVue)(vueObj?.components?.[key]);
+                    vueObj.components[key] = {
+                        template: iv.template,
+                        ...iv.vueObj
+                    };
+                });
+            }
+        }
     }
     catch (error) {
         console.log(error);
@@ -157,7 +170,7 @@ const importVue = (url) => {
     return {
         template,
         style,
-        obj
+        vueObj
     };
 };
 exports.importVue = importVue;

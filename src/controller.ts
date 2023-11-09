@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-07 17:58:27
+ * @LastEditTime: 2023-11-09 21:13:42
  */
 import { Context } from 'koa'
 import { HttpException } from './exception'
@@ -86,10 +86,10 @@ export class Controller {
         if (type === 'vue') {
             let body = ''
             try {
-                const vueObj = importVue(url)
-                const app = createApp(data, vueObj.template, vueObj.obj)
+                const { style, template, vueObj } = importVue(url)
+                const app = createApp(data, template, vueObj)
                 body = await renderToString(app)
-                body = htmlView(vueObj.style, body, data, vueObj.template, vueObj.obj)
+                body = htmlView(style, body, data, template, vueObj)
             } catch (error) {
                 console.log(error)
                 throw new HttpException({
@@ -162,4 +162,33 @@ export const GetParams = (ctx: Context, validate: boolean = false) => {
     }
 
     return result
+}
+
+/**
+ * 视图渲染
+ * @param url 视图路径 后缀可带可不带
+ * @param data 视图的数据
+ * @param type 模板引擎的类型，默认是vue, 可以指定为react
+ * @returns 
+ */
+export const View = async (url: string, data: Object = {}, type: VueType = 'vue') => {
+    if (type === 'vue') {
+        let body = ''
+        try {
+            const { style, template, vueObj } = importVue(url)
+            const app = createApp(data, template, vueObj)
+            body = await renderToString(app)
+            body = htmlView(style, body, data, template, vueObj)
+        } catch (error) {
+            console.log(error)
+            throw new HttpException({
+                msg: '视图文件解析失败',
+                errorCode: ErrorCode.ERROR_VIEW,
+                statusCode: 404
+            })
+        }
+        return { body, status: 200 }
+    } else if (type === 'react') {
+        // TODO
+    }
 }

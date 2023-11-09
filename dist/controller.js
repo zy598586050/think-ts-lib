@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetParams = exports.ApiException = exports.ShowSuccess = exports.Controller = void 0;
+exports.View = exports.GetParams = exports.ApiException = exports.ShowSuccess = exports.Controller = void 0;
 const exception_1 = require("./exception");
 const config_1 = require("./config");
 const errorcode_1 = require("./errorcode");
@@ -75,10 +75,10 @@ class Controller {
         if (type === 'vue') {
             let body = '';
             try {
-                const vueObj = (0, view_1.importVue)(url);
-                const app = (0, view_1.createApp)(data, vueObj.template, vueObj.obj);
+                const { style, template, vueObj } = (0, view_1.importVue)(url);
+                const app = (0, view_1.createApp)(data, template, vueObj);
                 body = await (0, server_renderer_1.renderToString)(app);
-                body = (0, view_1.htmlView)(vueObj.style, body, data, vueObj.template, vueObj.obj);
+                body = (0, view_1.htmlView)(style, body, data, template, vueObj);
             }
             catch (error) {
                 console.log(error);
@@ -153,3 +153,34 @@ const GetParams = (ctx, validate = false) => {
     return result;
 };
 exports.GetParams = GetParams;
+/**
+ * 视图渲染
+ * @param url 视图路径 后缀可带可不带
+ * @param data 视图的数据
+ * @param type 模板引擎的类型，默认是vue, 可以指定为react
+ * @returns
+ */
+const View = async (url, data = {}, type = 'vue') => {
+    if (type === 'vue') {
+        let body = '';
+        try {
+            const { style, template, vueObj } = (0, view_1.importVue)(url);
+            const app = (0, view_1.createApp)(data, template, vueObj);
+            body = await (0, server_renderer_1.renderToString)(app);
+            body = (0, view_1.htmlView)(style, body, data, template, vueObj);
+        }
+        catch (error) {
+            console.log(error);
+            throw new exception_1.HttpException({
+                msg: '视图文件解析失败',
+                errorCode: errorcode_1.ErrorCode.ERROR_VIEW,
+                statusCode: 404
+            });
+        }
+        return { body, status: 200 };
+    }
+    else if (type === 'react') {
+        // TODO
+    }
+};
+exports.View = View;

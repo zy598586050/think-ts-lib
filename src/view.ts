@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-28 16:59:04
- * @LastEditTime: 2023-11-09 18:23:28
+ * @LastEditTime: 2023-11-09 21:26:11
  */
 import { createSSRApp } from 'vue'
 import { parse } from '@vue/compiler-sfc'
@@ -128,7 +128,7 @@ export const importVue = (url: string) => {
     let vueCode = ''
     let template = ''
     let style = ''
-    let obj = {}
+    let vueObj: any = {}
     try {
         const viewPath = path.resolve(process.cwd(), `${config.app.view_path}/${url}${url.endsWith('.vue') ? '' : '.vue'}`)
         vueCode = fs.readFileSync(viewPath, 'utf-8')
@@ -144,8 +144,21 @@ export const importVue = (url: string) => {
         const { descriptor } = parse(vueCode)
         template = descriptor?.template?.content || ''
         style = descriptor.styles.map(v => v.content).join()
-        const code = `(${descriptor?.script?.content?.replace('export default', '')?.replace(/\r\n/g, '') || ''})`
-        obj = new Function(`return ${code}`)() || {}
+        const codeString = descriptor?.script?.content || ''
+        const objStr = codeString.split('export default')
+        if (objStr?.[1]) {
+            const code = `(${objStr?.[1]?.replace(/\r\n/g, '') || ''})`
+            vueObj = new Function(`return ${code}`)() || {}
+            if (vueObj?.components) {
+                Object.keys(vueObj?.components).forEach(key => {
+                    const iv = importVue(vueObj?.components?.[key])
+                    vueObj.components[key] = {
+                        template: iv.template,
+                        ...iv.vueObj
+                    }
+                })
+            }
+        }
     } catch (error) {
         console.log(error)
         throw new HttpException({
@@ -157,6 +170,6 @@ export const importVue = (url: string) => {
     return {
         template,
         style,
-        obj
+        vueObj
     }
 }
