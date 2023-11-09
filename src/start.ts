@@ -1,9 +1,9 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 15:43:32
- * @LastEditTime: 2023-10-24 20:57:29
+ * @LastEditTime: 2023-11-07 21:08:51
  */
-import * as path from 'path'
+import path from 'path'
 import Koa from 'koa'
 import KoaBody from 'koa-body'
 import KoaStatic from 'koa-static'

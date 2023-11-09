@@ -22,15 +22,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setConfig = exports.getConfig = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-10-24 20:55:50
+ * @LastEditTime: 2023-11-07 21:08:28
  */
-const fs = __importStar(require("fs"));
-const path = __importStar(require("path"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const lodash_1 = require("lodash");
 const exception_1 = require("./exception");
 const errorcode_1 = require("./errorcode");
@@ -39,10 +42,10 @@ const defaultConfigPath = 'config'; // 配置目录, 默认会读取./config目�
 // 加载配置
 const loadConfig = (configDir) => {
     // 只有存在该目录才会去合并
-    if (fs.existsSync(configDir) && fs.statSync(configDir).isDirectory()) {
-        fs.readdirSync(configDir).forEach((file) => {
-            const modulePath = path.join(configDir, file);
-            if (fs.statSync(modulePath).isDirectory()) {
+    if (fs_1.default.existsSync(configDir) && fs_1.default.statSync(configDir).isDirectory()) {
+        fs_1.default.readdirSync(configDir).forEach((file) => {
+            const modulePath = path_1.default.join(configDir, file);
+            if (fs_1.default.statSync(modulePath).isDirectory()) {
                 loadConfig(modulePath);
             }
             else if (file.endsWith('.ts')) {
@@ -64,7 +67,7 @@ const loadConfig = (configDir) => {
 // 读取配置属性
 const getConfig = (configPath) => {
     // 配置目录, 默认会读取./config目录下的所有配置文件
-    const configDir = path.resolve(process.cwd(), configPath ?? defaultConfigPath);
+    const configDir = path_1.default.resolve(process.cwd(), configPath ?? defaultConfigPath);
     loadConfig(configDir);
     return (0, lodash_1.merge)({
         app: {

@@ -1,12 +1,12 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 15:49:40
- * @LastEditTime: 2023-10-24 14:57:37
+ * @LastEditTime: 2023-11-07 21:08:45
  */
 import { Context } from 'koa'
 import koaRouter from 'koa-router'
-import * as fs from 'fs'
-import * as path from 'path'
+import fs from 'fs'
+import path from 'path'
 import { getConfig } from './config'
 import { HttpException } from './exception'
 import { ErrorCode } from './errorcode'

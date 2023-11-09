@@ -1,41 +1,11 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GetParams = exports.ApiException = exports.ShowSuccess = exports.Controller = void 0;
-/*
- * @Author: zhangyu
- * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-10-24 20:46:09
- */
-const fs = __importStar(require("fs"));
-const path = __importStar(require("path"));
 const exception_1 = require("./exception");
 const config_1 = require("./config");
 const errorcode_1 = require("./errorcode");
-const vue_1 = require("vue");
-const server_renderer_1 = require("@vue/server-renderer");
+const server_renderer_1 = require("vue/server-renderer");
+const view_1 = require("./view");
 const config = (0, config_1.getConfig)();
 class Controller {
     /**
@@ -96,35 +66,33 @@ class Controller {
     }
     /**
      * 视图渲染
-     * @param url 视图路径
+     * @param url 视图路径 后缀可带可不带
      * @param data 视图的数据
      * @param type 模板引擎的类型，默认是vue, 可以指定为react
      * @returns
      */
-    View(url, data, type = 'vue') {
+    async View(url, data = {}, type = 'vue') {
         if (type === 'vue') {
-            let template = '';
+            let body = '';
             try {
-                const viewPath = path.resolve(process.cwd(), `${config.app.view_path}/${url}`);
-                template = fs.readFileSync(viewPath, 'utf-8');
+                const vueObj = (0, view_1.importVue)(url);
+                const app = (0, view_1.createApp)(data, vueObj.template, vueObj.obj);
+                body = await (0, server_renderer_1.renderToString)(app);
+                body = (0, view_1.htmlView)(vueObj.style, body, data, vueObj.template, vueObj.obj);
             }
             catch (error) {
                 console.log(error);
                 throw new exception_1.HttpException({
-                    msg: '找不到视图文件',
+                    msg: '视图文件解析失败',
                     errorCode: errorcode_1.ErrorCode.ERROR_VIEW,
                     statusCode: 404
                 });
             }
-            const app = (0, vue_1.createSSRApp)({
-                data() {
-                    return data;
-                },
-                template
-            });
-            return (0, server_renderer_1.renderToString)(app);
+            return { body, status: 200 };
         }
-        else if (type === 'react') { }
+        else if (type === 'react') {
+            // TODO
+        }
     }
 }
 exports.Controller = Controller;

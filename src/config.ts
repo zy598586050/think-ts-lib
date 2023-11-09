@@ -1,10 +1,10 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-10-24 20:55:50
+ * @LastEditTime: 2023-11-07 21:08:28
  */
-import * as fs from 'fs'
-import * as path from 'path'
+import fs from 'fs'
+import path from 'path'
 import { merge } from 'lodash'
 import { HttpException } from './exception'
 import { ErrorCode } from './errorcode'

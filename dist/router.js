@@ -27,8 +27,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const koa_router_1 = __importDefault(require("koa-router"));
-const fs = __importStar(require("fs"));
-const path = __importStar(require("path"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const config_1 = require("./config");
 const exception_1 = require("./exception");
 const errorcode_1 = require("./errorcode");
@@ -62,7 +62,7 @@ const hasControllerFun = async (str) => {
     }
     const strArray = str.split('/');
     const beforePath = strArray.slice(0, -1).join('/');
-    const importUrl = path.resolve(process.cwd(), `${config.app.controller_path}/${beforePath}.ts`);
+    const importUrl = path_1.default.resolve(process.cwd(), `${config.app.controller_path}/${beforePath}.ts`);
     try {
         const module = await Promise.resolve(`${importUrl}`).then(s => __importStar(require(s)));
         const controller = new module.default();
@@ -101,13 +101,13 @@ const hasRepeatRoute = (url) => {
     }
 };
 // 加载路由配置
-const routeDir = path.resolve(process.cwd(), config.app.route_path);
+const routeDir = path_1.default.resolve(process.cwd(), config.app.route_path);
 const loadRoute = (routeDir) => {
     // 只有存在该目录才会去合并
-    if (fs.existsSync(routeDir) && fs.statSync(routeDir).isDirectory()) {
-        fs.readdirSync(routeDir).forEach((file) => {
-            const modulePath = path.join(routeDir, file);
-            if (fs.statSync(modulePath).isDirectory()) {
+    if (fs_1.default.existsSync(routeDir) && fs_1.default.statSync(routeDir).isDirectory()) {
+        fs_1.default.readdirSync(routeDir).forEach((file) => {
+            const modulePath = path_1.default.join(routeDir, file);
+            if (fs_1.default.statSync(modulePath).isDirectory()) {
                 loadRoute(modulePath);
             }
             else if (file.endsWith('.ts')) {
