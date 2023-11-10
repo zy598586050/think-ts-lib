@@ -107,7 +107,7 @@ const route = {
                 url = url.startsWith('/') ? url : `/${url}`;
                 this.delete(`${prefix}${url}`, str, middleware);
             }
-            // 规定不支持递归
+            // 规定不支持递归分组
         });
     }
 };

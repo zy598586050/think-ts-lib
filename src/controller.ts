@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-10 18:11:38
+ * @LastEditTime: 2023-11-10 20:00:07
  */
 import path from 'path'
 import { Context } from 'koa'
@@ -54,7 +54,7 @@ export class Controller {
      * @param validate 控制是否开启对该控制器方法的参数校验 默认不开启
      * @param url 自定义指定验证器路径
      */
-    async GetParams(ctx: Context, validate: boolean = false, url?: string) {
+    GetParams(ctx: Context, validate: boolean = false, url?: string) {
         let result = {}
 
         switch (ctx.request.method) {
@@ -75,18 +75,21 @@ export class Controller {
         }
 
         if (validate) {
-            try {
-                const validatePath = path.resolve(process.cwd(), `${config.app.validate_path}/${url || ctx.beforePath}.ts`)
-                const module = await import(validatePath)
+            const validatePath = path.resolve(process.cwd(), `${config.app.validate_path}/${url || ctx.beforePath}.ts`)
+            import(validatePath).then((module) => {
                 const validateObj = module.default
                 Object.keys(validateObj.rule).forEach(key => {
                     //
                 })
-            } catch (error) {
+            }).catch((error) => {
                 console.log(error)
-            }
+                throw new HttpException({
+                    msg: '验证器可能书写有误',
+                    errorCode: ErrorCode.ERROR_VALIDATE,
+                    statusCode: 500
+                })
+            })
         }
-
         return result
     }
 

@@ -31,7 +31,7 @@ exports.View = exports.GetParams = exports.ApiException = exports.ShowSuccess = 
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-10 18:11:38
+ * @LastEditTime: 2023-11-10 20:00:07
  */
 const path_1 = __importDefault(require("path"));
 const exception_1 = require("./exception");
@@ -78,7 +78,7 @@ class Controller {
      * @param validate 控制是否开启对该控制器方法的参数校验 默认不开启
      * @param url 自定义指定验证器路径
      */
-    async GetParams(ctx, validate = false, url) {
+    GetParams(ctx, validate = false, url) {
         let result = {};
         switch (ctx.request.method) {
             case 'GET':
@@ -97,17 +97,20 @@ class Controller {
                 break;
         }
         if (validate) {
-            try {
-                const validatePath = path_1.default.resolve(process.cwd(), `${config.app.validate_path}/${url || ctx.beforePath}.ts`);
-                const module = await Promise.resolve(`${validatePath}`).then(s => __importStar(require(s)));
+            const validatePath = path_1.default.resolve(process.cwd(), `${config.app.validate_path}/${url || ctx.beforePath}.ts`);
+            Promise.resolve(`${validatePath}`).then(s => __importStar(require(s))).then((module) => {
                 const validateObj = module.default;
                 Object.keys(validateObj.rule).forEach(key => {
                     //
                 });
-            }
-            catch (error) {
+            }).catch((error) => {
                 console.log(error);
-            }
+                throw new exception_1.HttpException({
+                    msg: '验证器可能书写有误',
+                    errorCode: errorcode_1.ErrorCode.ERROR_VALIDATE,
+                    statusCode: 500
+                });
+            });
         }
         return result;
     }
