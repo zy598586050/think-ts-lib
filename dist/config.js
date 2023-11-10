@@ -30,7 +30,7 @@ exports.setConfig = exports.getConfig = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-11-07 21:08:28
+ * @LastEditTime: 2023-11-10 15:19:41
  */
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -84,7 +84,8 @@ const getConfig = (configPath) => {
             controller_path: 'controller',
             middleware_path: 'middleware',
             view_path: 'views',
-            static_path: 'public', // 静态资源目录
+            static_path: 'public',
+            validate_path: 'validate', // 默认验证器目录地址
         }
     }, appConfig);
 };

@@ -35,18 +35,79 @@ const errorcode_1 = require("./errorcode");
 const config = (0, config_1.getConfig)();
 const router = new koa_router_1.default();
 const urlArray = [];
-const route = {
-    // GET路由
-    get(url, str, middleware) {
-        // 检测路由是否重复
-        hasRepeatRoute(url);
-        // 检测控制器方法是否存在, 存在就返回该方法
-        const fn = hasControllerFun(str);
-        router.get(url, async (ctx) => {
-            // 动态执行控制器的方法
-            const { body, status } = await (await fn)(ctx);
+// 具体执行的方法
+const handleRoute = (method, url, str, middleware) => {
+    url = url.startsWith('/') ? url : `/${url}`;
+    // 检测路由是否重复
+    hasRepeatRoute(url);
+    // 检测控制器方法是否存在, 存在就返回该方法
+    const fn = hasControllerFun(str);
+    router[method](url, async (ctx) => {
+        // 挂载控制器路径
+        ctx.beforePath = str.split('/').slice(0, -1).join('/');
+        // 动态执行控制器的方法
+        const { body, status } = await (await fn)(ctx);
+        // 判断是否有中间件
+        if (typeof middleware === 'function') {
+            await middleware(ctx, () => {
+                ctx.body = body;
+                ctx.status = status;
+            }, (msg = '请求错误', errorCode = 30000, statusCode = 400) => {
+                throw new exception_1.HttpException({
+                    msg,
+                    errorCode,
+                    statusCode
+                });
+            });
+        }
+        else {
             ctx.body = body;
             ctx.status = status;
+        }
+    });
+};
+// 路由
+const route = {
+    // GET 路由
+    get(url, str, middleware) {
+        handleRoute('get', url, str, middleware);
+    },
+    // POST 路由
+    post(url, str, middleware) {
+        handleRoute('post', url, str, middleware);
+    },
+    // PUT 路由
+    put(url, str, middleware) {
+        handleRoute('put', url, str, middleware);
+    },
+    // DELETE 路由
+    delete(url, str, middleware) {
+        handleRoute('delete', url, str, middleware);
+    },
+    // 分组路由
+    group(prefix, callback, middleware) {
+        callback({
+            // GET 路由
+            get: (url, str) => {
+                url = url.startsWith('/') ? url : `/${url}`;
+                this.get(`${prefix}${url}`, str, middleware);
+            },
+            // POST 路由
+            post: (url, str) => {
+                url = url.startsWith('/') ? url : `/${url}`;
+                this.post(`${prefix}${url}`, str, middleware);
+            },
+            // PUT 路由
+            put: (url, str) => {
+                url = url.startsWith('/') ? url : `/${url}`;
+                this.put(`${prefix}${url}`, str, middleware);
+            },
+            // DELETE 路由
+            delete: (url, str) => {
+                url = url.startsWith('/') ? url : `/${url}`;
+                this.delete(`${prefix}${url}`, str, middleware);
+            }
+            // 规定不支持递归
         });
     }
 };
@@ -115,7 +176,8 @@ const loadRoute = (routeDir) => {
                     if (module && module.default) {
                         module.default(route);
                     }
-                }).catch(() => {
+                }).catch((error) => {
+                    console.log(error);
                     throw new exception_1.HttpException({
                         msg: '路由加载错误',
                         errorCode: errorcode_1.ErrorCode.ERROR_ROUTE,
