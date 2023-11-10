@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 15:49:40
- * @LastEditTime: 2023-11-10 19:22:11
+ * @LastEditTime: 2023-11-10 19:25:51
  */
 import { Context } from 'koa'
 import koaRouter from 'koa-router'
@@ -105,7 +105,7 @@ const route: RouteType = {
                 url = url.startsWith('/') ? url : `/${url}`
                 this.delete(`${prefix}${url}`, str, middleware)
             }
-            // 规定不支持递归
+            // 规定不支持递归分组
         })
     }
 }
