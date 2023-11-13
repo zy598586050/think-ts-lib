@@ -31,7 +31,7 @@ exports.View = exports.GetParams = exports.ApiException = exports.ShowSuccess = 
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-10 20:00:07
+ * @LastEditTime: 2023-11-13 16:53:49
  */
 const path_1 = __importDefault(require("path"));
 const exception_1 = require("./exception");
@@ -39,6 +39,7 @@ const config_1 = require("./config");
 const errorcode_1 = require("./errorcode");
 const server_renderer_1 = require("vue/server-renderer");
 const view_1 = require("./view");
+const validate_1 = require("./validate");
 const config = (0, config_1.getConfig)();
 class Controller {
     /**
@@ -76,9 +77,9 @@ class Controller {
      * 参数获取器
      * @param ctx 上下文
      * @param validate 控制是否开启对该控制器方法的参数校验 默认不开启
-     * @param url 自定义指定验证器路径
+     * @param validate_path 自定义指定当前验证器路径
      */
-    GetParams(ctx, validate = false, url) {
+    GetParams(ctx, validate = false, validate_path) {
         let result = {};
         switch (ctx.request.method) {
             case 'GET':
@@ -97,19 +98,26 @@ class Controller {
                 break;
         }
         if (validate) {
-            const validatePath = path_1.default.resolve(process.cwd(), `${config.app.validate_path}/${url || ctx.beforePath}.ts`);
+            // 默认需要和控制器路径保持一致
+            const validatePath = path_1.default.resolve(process.cwd(), `${config.app.validate_path}/${validate_path || ctx.beforePath}.ts`);
             Promise.resolve(`${validatePath}`).then(s => __importStar(require(s))).then((module) => {
                 const validateObj = module.default;
-                Object.keys(validateObj.rule).forEach(key => {
-                    //
+                Object.keys(validateObj?.rule).forEach(key => {
+                    // 只验证有验证规则的参数
+                    // 1. key 要验证的键
+                    // 2. result[key] 要验证的值
+                    // 3. validateObj.rule[key] 验证规则
+                    // 4. validateObj.message[key] 自定义验证提示
+                    // 5. scene 分场景验证
+                    (0, validate_1.Validate)(ctx, key, result, validateObj);
                 });
             }).catch((error) => {
                 console.log(error);
-                throw new exception_1.HttpException({
-                    msg: '验证器可能书写有误',
-                    errorCode: errorcode_1.ErrorCode.ERROR_VALIDATE,
-                    statusCode: 500
-                });
+                ctx.body = {
+                    msg: '验证器路径可能书写有误',
+                    errorCode: errorcode_1.ErrorCode.ERROR_VALIDATE
+                };
+                ctx.status = 500;
             });
         }
         return result;

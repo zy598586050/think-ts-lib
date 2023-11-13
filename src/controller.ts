@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-10 20:00:07
+ * @LastEditTime: 2023-11-13 16:53:49
  */
 import path from 'path'
 import { Context } from 'koa'
@@ -10,6 +10,7 @@ import { getConfig } from './config'
 import { ErrorCode } from './errorcode'
 import { renderToString } from 'vue/server-renderer'
 import { createApp, importVue, htmlView } from './view'
+import { Validate } from './validate'
 
 type VueType = 'vue' | 'react'
 const config = getConfig()
@@ -52,10 +53,10 @@ export class Controller {
      * 参数获取器
      * @param ctx 上下文
      * @param validate 控制是否开启对该控制器方法的参数校验 默认不开启
-     * @param url 自定义指定验证器路径
+     * @param validate_path 自定义指定当前验证器路径
      */
-    GetParams(ctx: Context, validate: boolean = false, url?: string) {
-        let result = {}
+    GetParams(ctx: Context, validate: boolean = false, validate_path?: string) {
+        let result: any = {}
 
         switch (ctx.request.method) {
             case 'GET':
@@ -75,19 +76,26 @@ export class Controller {
         }
 
         if (validate) {
-            const validatePath = path.resolve(process.cwd(), `${config.app.validate_path}/${url || ctx.beforePath}.ts`)
+            // 默认需要和控制器路径保持一致
+            const validatePath = path.resolve(process.cwd(), `${config.app.validate_path}/${validate_path || ctx.beforePath}.ts`)
             import(validatePath).then((module) => {
                 const validateObj = module.default
-                Object.keys(validateObj.rule).forEach(key => {
-                    //
+                Object.keys(validateObj?.rule).forEach(key => {
+                    // 只验证有验证规则的参数
+                    // 1. key 要验证的键
+                    // 2. result[key] 要验证的值
+                    // 3. validateObj.rule[key] 验证规则
+                    // 4. validateObj.message[key] 自定义验证提示
+                    // 5. scene 分场景验证
+                    Validate(ctx, key, result, validateObj)
                 })
             }).catch((error) => {
                 console.log(error)
-                throw new HttpException({
-                    msg: '验证器可能书写有误',
-                    errorCode: ErrorCode.ERROR_VALIDATE,
-                    statusCode: 500
-                })
+                ctx.body = {
+                    msg: '验证器路径可能书写有误',
+                    errorCode: ErrorCode.ERROR_VALIDATE
+                }
+                ctx.status = 500
             })
         }
         return result

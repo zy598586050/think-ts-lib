@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 15:49:40
- * @LastEditTime: 2023-11-10 19:25:51
+ * @LastEditTime: 2023-11-13 16:41:22
  */
 import { Context } from 'koa'
 import koaRouter from 'koa-router'
@@ -43,6 +43,7 @@ const handleRoute = (method: METHOD, url: string, str: string, middleware?: Midd
     router[method](url, async (ctx: Context) => {
         // 挂载控制器路径
         ctx.beforePath = str.split('/').slice(0, -1).join('/')
+        ctx.fnName = (await (await fn)).name
         // 动态执行控制器的方法
         const { body, status } = await (await fn)(ctx)
         // 判断是否有中间件
@@ -115,7 +116,7 @@ const hasControllerFun = async (str: string): Promise<(ctx: Context) => Promise<
     let fn = null
     if (!str.includes('/')) {
         throw new HttpException({
-            msg: `路由控制器方法配置有误[${str}]`,
+            msg: `路由控制器方法有误[${str}]`,
             errorCode: ErrorCode.ERROR_ROUTE,
             statusCode: 500
         })
@@ -128,12 +129,11 @@ const hasControllerFun = async (str: string): Promise<(ctx: Context) => Promise<
     try {
         const module = await import(importUrl)
         const controller = new module.default()
-
         if (typeof controller[strArray[strArray.length - 1]] === 'function') {
             fn = controller[strArray[strArray.length - 1]]
         } else {
             throw new HttpException({
-                msg: `路由控制器方法配置有误[${str}]`,
+                msg: `路由控制器方法有误[${str}]`,
                 errorCode: ErrorCode.ERROR_ROUTE,
                 statusCode: 500
             })
@@ -141,7 +141,7 @@ const hasControllerFun = async (str: string): Promise<(ctx: Context) => Promise<
     } catch (error) {
         console.log(error)
         throw new HttpException({
-            msg: `路由控制器方法配置有误[${str}]`,
+            msg: `路由控制器方法有误[${str}]`,
             errorCode: ErrorCode.ERROR_ROUTE,
             statusCode: 500
         })

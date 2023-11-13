@@ -45,6 +45,7 @@ const handleRoute = (method, url, str, middleware) => {
     router[method](url, async (ctx) => {
         // 挂载控制器路径
         ctx.beforePath = str.split('/').slice(0, -1).join('/');
+        ctx.fnName = (await (await fn)).name;
         // 动态执行控制器的方法
         const { body, status } = await (await fn)(ctx);
         // 判断是否有中间件
@@ -116,7 +117,7 @@ const hasControllerFun = async (str) => {
     let fn = null;
     if (!str.includes('/')) {
         throw new exception_1.HttpException({
-            msg: `路由控制器方法配置有误[${str}]`,
+            msg: `路由控制器方法有误[${str}]`,
             errorCode: errorcode_1.ErrorCode.ERROR_ROUTE,
             statusCode: 500
         });
@@ -132,7 +133,7 @@ const hasControllerFun = async (str) => {
         }
         else {
             throw new exception_1.HttpException({
-                msg: `路由控制器方法配置有误[${str}]`,
+                msg: `路由控制器方法有误[${str}]`,
                 errorCode: errorcode_1.ErrorCode.ERROR_ROUTE,
                 statusCode: 500
             });
@@ -141,7 +142,7 @@ const hasControllerFun = async (str) => {
     catch (error) {
         console.log(error);
         throw new exception_1.HttpException({
-            msg: `路由控制器方法配置有误[${str}]`,
+            msg: `路由控制器方法有误[${str}]`,
             errorCode: errorcode_1.ErrorCode.ERROR_ROUTE,
             statusCode: 500
         });
