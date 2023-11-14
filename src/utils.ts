@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-11-14 12:29:10
- * @LastEditTime: 2023-11-14 20:11:05
+ * @LastEditTime: 2023-11-14 20:49:04
  */
 import fs from 'fs'
 import ip from 'ip'
@@ -152,23 +152,23 @@ export let Utils = {
     // 微信支付
     WxPay({ appid, mchid, private_key, serial_no, apiv3_private_key, notify_url }: WXPAY = {}) {
         return new wxpay({
-            appid: appid ?? getConfig()?.wx?.wechat?.appid,
-            mchid: mchid ?? getConfig()?.wx?.wxpay?.mchid,
-            private_key: private_key ?? getConfig()?.wx?.wxpay?.private_key,
-            serial_no: serial_no ?? getConfig()?.wx?.wxpay?.serial_no,
-            apiv3_private_key: apiv3_private_key ?? getConfig()?.wx?.wxpay?.apiv3_private_key,
-            notify_url: notify_url ?? getConfig()?.wx?.wxpay?.notify_url
+            appid: appid ?? getConfig()?.wechat?.appid,
+            mchid: mchid ?? getConfig()?.wxpay?.mchid,
+            private_key: private_key ?? getConfig()?.wxpay?.private_key,
+            serial_no: serial_no ?? getConfig()?.wxpay?.serial_no,
+            apiv3_private_key: apiv3_private_key ?? getConfig()?.wxpay?.apiv3_private_key,
+            notify_url: notify_url ?? getConfig()?.wxpay?.notify_url
         })
     },
     // 支付宝支付
     AliPay({ appId, privateKey, encryptKey, alipayRootCertPath, alipayPublicCertPath, appCertPath }: ALIPAY = {}) {
         return new alipay({
-            appId: appId ?? getConfig()?.alicloud?.alipay?.appId,
-            privateKey: privateKey ?? getConfig()?.alicloud?.alipay?.privateKey,
-            encryptKey: encryptKey ?? getConfig()?.alicloud?.alipay?.encryptKey,
-            alipayRootCertPath: alipayRootCertPath ?? getConfig()?.alicloud?.alipay?.alipayRootCertPath,
-            alipayPublicCertPath: alipayPublicCertPath ?? getConfig()?.alicloud?.alipay?.alipayPublicCertPath,
-            appCertPath: appCertPath ?? getConfig()?.alicloud?.alipay?.appCertPath
+            appId: appId ?? getConfig()?.alipay?.appId,
+            privateKey: privateKey ?? getConfig()?.alipay?.privateKey,
+            encryptKey: encryptKey ?? getConfig()?.alipay?.encryptKey,
+            alipayRootCertPath: alipayRootCertPath ?? getConfig()?.alipay?.alipayRootCertPath,
+            alipayPublicCertPath: alipayPublicCertPath ?? getConfig()?.alipay?.alipayPublicCertPath,
+            appCertPath: appCertPath ?? getConfig()?.alipay?.appCertPath
         })
     },
     // 阿里短信验证码下发业务
