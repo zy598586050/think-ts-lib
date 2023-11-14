@@ -30,7 +30,7 @@ exports.getConfig = exports.initConfig = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-11-14 12:11:25
+ * @LastEditTime: 2023-11-14 18:26:17
  */
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -92,7 +92,11 @@ const getConfig = (cfg = {}) => {
             middleware_path: 'middleware',
             view_path: 'views',
             static_path: 'public',
-            validate_path: 'validate', // 默认验证器目录地址
+            validate_path: 'validate',
+            utils_path: 'utils',
+            model_path: 'service',
+            jwt_key: 'ThinkTS',
+            expiresIn: 60 * 60, // JWT过期时间
         }
     }, appConfig, cfg);
 };

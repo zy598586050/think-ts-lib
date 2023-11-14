@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 20:10:53
- * @LastEditTime: 2023-11-14 12:13:04
+ * @LastEditTime: 2023-11-14 17:08:03
  */
 import { Context } from 'koa'
 import { ErrorCode } from './errorcode'
@@ -19,12 +19,11 @@ export default async (ctx: Context, next: () => Promise<any>) => {
             }
         }
     } catch (error: any) {
-        console.log(error)
         getConfig().app.enableLog && Log4j(error, 'error')
         ctx.body = {
-            msg: error.msg,
+            msg: error.msg || error.message,
             errorCode: error.errorCode
         }
-        ctx.status = error.statusCode
+        ctx.status = error.statusCode || 500
     }
 }

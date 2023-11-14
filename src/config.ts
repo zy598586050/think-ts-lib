@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-11-14 12:11:25
+ * @LastEditTime: 2023-11-14 18:26:17
  */
 import fs from 'fs'
 import path from 'path'
@@ -65,6 +65,10 @@ export const getConfig = (cfg: Object = {}) => {
             view_path: 'views', // 默认视图目录地址
             static_path: 'public', // 默认静态资源目录地址
             validate_path: 'validate', // 默认验证器目录地址
+            utils_path: 'utils', // 默认公共函数目录地址
+            model_path: 'service', // 默认模型目录地址
+            jwt_key: 'ThinkTS', // JWT加密的密钥
+            expiresIn: 60 * 60, // JWT过期时间
         }
     }, appConfig, cfg)
 }

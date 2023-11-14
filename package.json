@@ -16,13 +16,19 @@
   "author": "zhangyu",
   "license": "ISC",
   "dependencies": {
+    "@alicloud/sms-sdk": "^1.1.6",
     "@types/figlet": "^1.5.6",
     "@types/ip": "^1.1.1",
     "@types/koa": "^2.13.9",
     "@types/koa-router": "^7.4.5",
     "@types/lodash": "^4.14.199",
+    "ali-oss": "^6.18.1",
+    "alipay-sdk": "^3.6.1",
+    "crypto": "^1.0.1",
     "figlet": "^1.6.0",
     "ip": "^1.1.8",
+    "jsonwebtoken": "^9.0.2",
+    "jsrsasign": "^10.8.6",
     "koa": "^2.14.2",
     "koa-body": "^6.0.1",
     "koa-router": "^11.0.2",
@@ -32,9 +38,13 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2",
     "util": "^0.12.5",
-    "vue": "^3.3.6"
+    "vue": "^3.3.6",
+    "wxpay-v3": "^3.0.2"
   },
   "devDependencies": {
+    "@types/ali-oss": "^6.16.11",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/jsrsasign": "^10.5.12",
     "@types/koa-static": "^4.0.3"
   }
 }

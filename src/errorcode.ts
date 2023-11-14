@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-18 10:15:00
- * @LastEditTime: 2023-10-24 19:58:46
+ * @LastEditTime: 2023-11-14 16:59:56
  */
 export enum ErrorCode {
     ERROR_CODE = 10000, // 代码书写错误
@@ -13,4 +13,6 @@ export enum ErrorCode {
     ERROR_ES = 60000, // elasticsearch错误
     ERROR_MONGODB = 70000, // MongoDB错误
     ERROR_VIEW = 80000, // 视图错误
+    ERROR_UTILS = 90000, // utils工具函数加载错误
+    ERROR_MODEL = 91000, // 模型错误
 }

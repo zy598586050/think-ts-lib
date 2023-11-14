@@ -27,11 +27,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.View = exports.GetParams = exports.ApiException = exports.ShowSuccess = exports.Controller = void 0;
+exports.M = exports.View = exports.GetParams = exports.ApiException = exports.ShowSuccess = exports.Controller = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-14 12:14:33
+ * @LastEditTime: 2023-11-14 18:08:34
  */
 const path_1 = __importDefault(require("path"));
 const exception_1 = require("./exception");
@@ -98,7 +98,7 @@ class Controller {
         }
         if (validate) {
             // 默认需要和控制器路径保持一致
-            const validatePath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.validate_path}/${validate_path || ctx.beforePath}.ts`);
+            const validatePath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.validate_path}/${validate_path || ctx.beforePath}${(validate_path || ctx.beforePath).endsWith('.ts') ? '' : '.ts'}`);
             Promise.resolve(`${validatePath}`).then(s => __importStar(require(s))).then((module) => {
                 const validateObj = module.default;
                 Object.keys(validateObj?.rule).forEach(key => {
@@ -151,6 +151,27 @@ class Controller {
             // TODO
         }
     }
+    /**
+     * 调用模型
+     * @param modelPath 模型路径
+     */
+    async M(modelPath) {
+        let model = null;
+        const modelDir = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.model_path}/${modelPath}${modelPath.endsWith('.ts') ? '' : '.ts'}`);
+        try {
+            const module = await Promise.resolve(`${modelDir}`).then(s => __importStar(require(s)));
+            model = new module.default();
+        }
+        catch (error) {
+            console.log(error);
+            throw new exception_1.HttpException({
+                msg: `模型有误[${modelPath}]`,
+                errorCode: errorcode_1.ErrorCode.ERROR_MODEL,
+                statusCode: 500
+            });
+        }
+        return model;
+    }
 }
 exports.Controller = Controller;
-_a = new Controller(), exports.ShowSuccess = _a.ShowSuccess, exports.ApiException = _a.ApiException, exports.GetParams = _a.GetParams, exports.View = _a.View;
+_a = new Controller(), exports.ShowSuccess = _a.ShowSuccess, exports.ApiException = _a.ApiException, exports.GetParams = _a.GetParams, exports.View = _a.View, exports.M = _a.M;

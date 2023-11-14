@@ -18,12 +18,11 @@ exports.default = async (ctx, next) => {
         }
     }
     catch (error) {
-        console.log(error);
         (0, config_1.getConfig)().app.enableLog && (0, log4j_1.default)(error, 'error');
         ctx.body = {
-            msg: error.msg,
+            msg: error.msg || error.message,
             errorCode: error.errorCode
         };
-        ctx.status = error.statusCode;
+        ctx.status = error.statusCode || 500;
     }
 };
