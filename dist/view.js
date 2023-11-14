@@ -7,7 +7,7 @@ exports.importVue = exports.htmlView = exports.createApp = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-28 16:59:04
- * @LastEditTime: 2023-11-09 21:26:11
+ * @LastEditTime: 2023-11-14 12:16:32
  */
 const vue_1 = require("vue");
 const compiler_sfc_1 = require("@vue/compiler-sfc");
@@ -18,7 +18,6 @@ const lodash_1 = require("lodash");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const util_1 = __importDefault(require("util"));
-const config = (0, config_1.getConfig)();
 /**
  * 同构实例
  * @param data 根组件数据
@@ -45,7 +44,7 @@ exports.createApp = createApp;
 const htmlView = (style, ssr, data, template, obj) => {
     let html = '';
     try {
-        const htmlPath = path_1.default.resolve(process.cwd(), `${config.app.static_path}/index.html`);
+        const htmlPath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.static_path}/index.html`);
         html = fs_1.default.readFileSync(htmlPath, 'utf-8');
         // 插入样式
         const regStyle = /(<head>)([\s\S]*?)(<\/head>)/i;
@@ -128,7 +127,7 @@ const importVue = (url) => {
     let style = '';
     let vueObj = {};
     try {
-        const viewPath = path_1.default.resolve(process.cwd(), `${config.app.view_path}/${url}${url.endsWith('.vue') ? '' : '.vue'}`);
+        const viewPath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.view_path}/${url}${url.endsWith('.vue') ? '' : '.vue'}`);
         vueCode = fs_1.default.readFileSync(viewPath, 'utf-8');
     }
     catch (error) {

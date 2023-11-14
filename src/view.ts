@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-28 16:59:04
- * @LastEditTime: 2023-11-09 21:26:11
+ * @LastEditTime: 2023-11-14 12:16:32
  */
 import { createSSRApp } from 'vue'
 import { parse } from '@vue/compiler-sfc'
@@ -18,8 +18,6 @@ interface VUETYPE {
     data?: any
     methods?: any
 }
-
-const config = getConfig()
 
 /**
  * 同构实例
@@ -47,7 +45,7 @@ export const createApp = (data: Object, template: string, obj: VUETYPE) => {
 export const htmlView = (style: string, ssr: string, data: Object, template: string, obj: VUETYPE) => {
     let html = ''
     try {
-        const htmlPath = path.resolve(process.cwd(), `${config.app.static_path}/index.html`)
+        const htmlPath = path.resolve(process.cwd(), `${getConfig().app.static_path}/index.html`)
         html = fs.readFileSync(htmlPath, 'utf-8')
         // 插入样式
         const regStyle = /(<head>)([\s\S]*?)(<\/head>)/i
@@ -130,7 +128,7 @@ export const importVue = (url: string) => {
     let style = ''
     let vueObj: any = {}
     try {
-        const viewPath = path.resolve(process.cwd(), `${config.app.view_path}/${url}${url.endsWith('.vue') ? '' : '.vue'}`)
+        const viewPath = path.resolve(process.cwd(), `${getConfig().app.view_path}/${url}${url.endsWith('.vue') ? '' : '.vue'}`)
         vueCode = fs.readFileSync(viewPath, 'utf-8')
     } catch (error) {
         console.log(error)

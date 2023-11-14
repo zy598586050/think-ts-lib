@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 15:43:32
- * @LastEditTime: 2023-11-10 15:19:53
+ * @LastEditTime: 2023-11-14 12:07:03
  */
 import path from 'path'
 import Koa from 'koa'
@@ -9,19 +9,20 @@ import KoaBody from 'koa-body'
 import KoaStatic from 'koa-static'
 import figlet from 'figlet'
 import ip from 'ip'
-import { setConfig, getConfig } from './config'
+import { getConfig, initConfig } from './config'
 import errorHandler from './error'
 import router from './router'
 
 const app = new Koa()
 
-export default (cfg: Record<string, any> = {}) => {
+export default async (cfg: Record<string, any> = {}) => {
     // 打印ThinkTS
     const result = figlet.textSync('ThinkTS')
     console.log(result)
 
     console.time('用时')
-    const mergeConfig = setConfig(getConfig(cfg?.app?.configPath), cfg)
+    await initConfig(cfg?.app?.configPath)
+    const mergeConfig = getConfig(cfg)
     app
         .use(errorHandler)
         .use(KoaBody(mergeConfig?.app?.koaBody))

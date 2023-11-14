@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 15:43:32
- * @LastEditTime: 2023-11-10 15:19:53
+ * @LastEditTime: 2023-11-14 12:07:03
  */
 const path_1 = __importDefault(require("path"));
 const koa_1 = __importDefault(require("koa"));
@@ -18,12 +18,13 @@ const config_1 = require("./config");
 const error_1 = __importDefault(require("./error"));
 const router_1 = __importDefault(require("./router"));
 const app = new koa_1.default();
-exports.default = (cfg = {}) => {
+exports.default = async (cfg = {}) => {
     // 打印ThinkTS
     const result = figlet_1.default.textSync('ThinkTS');
     console.log(result);
     console.time('用时');
-    const mergeConfig = (0, config_1.setConfig)((0, config_1.getConfig)(cfg?.app?.configPath), cfg);
+    await (0, config_1.initConfig)(cfg?.app?.configPath);
+    const mergeConfig = (0, config_1.getConfig)(cfg);
     app
         .use(error_1.default)
         .use((0, koa_body_1.default)(mergeConfig?.app?.koaBody))

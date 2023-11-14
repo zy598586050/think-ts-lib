@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-11-13 11:44:44
- * @LastEditTime: 2023-11-13 19:41:24
+ * @LastEditTime: 2023-11-13 19:43:58
  */
 import { Context } from 'koa'
 import { ErrorCode } from './errorcode'
@@ -41,7 +41,7 @@ const rule: any = {
  * 验证器
  * @param ctx 上下文
  * @param key 当前验证的键
- * @param params 请求的入参数
+ * @param params 请求的入参
  * @param validateObj 验证器对象
  */
 export const Validate = (ctx: Context, key: string, params: any, validateObj: VALIDATE) => {

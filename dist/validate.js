@@ -32,7 +32,7 @@ const rule = {
  * 验证器
  * @param ctx 上下文
  * @param key 当前验证的键
- * @param params 请求的入参数
+ * @param params 请求的入参
  * @param validateObj 验证器对象
  */
 const Validate = (ctx, key, params, validateObj) => {

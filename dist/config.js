@@ -26,49 +26,56 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setConfig = exports.getConfig = void 0;
+exports.getConfig = exports.initConfig = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-11-10 15:19:41
+ * @LastEditTime: 2023-11-14 12:11:25
  */
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const lodash_1 = require("lodash");
 const exception_1 = require("./exception");
 const errorcode_1 = require("./errorcode");
-let appConfig = {};
 const defaultConfigPath = 'config'; // 配置目录, 默认会读取./config目录下的所有配置文件
+let appConfig = {}; // 加载的配置文件里的配置
 // 加载配置
-const loadConfig = (configDir) => {
+const loadConfig = async (configDir) => {
     // 只有存在该目录才会去合并
     if (fs_1.default.existsSync(configDir) && fs_1.default.statSync(configDir).isDirectory()) {
-        fs_1.default.readdirSync(configDir).forEach((file) => {
+        for (const file of fs_1.default.readdirSync(configDir)) {
             const modulePath = path_1.default.join(configDir, file);
             if (fs_1.default.statSync(modulePath).isDirectory()) {
-                loadConfig(modulePath);
+                await loadConfig(modulePath);
             }
             else if (file.endsWith('.ts')) {
-                Promise.resolve(`${modulePath}`).then(s => __importStar(require(s))).then((module) => {
+                try {
+                    const module = await Promise.resolve(`${modulePath}`).then(s => __importStar(require(s)));
                     if (module && module.default) {
-                        appConfig[file.replace('.ts', '')] = module.default;
+                        appConfig = (0, lodash_1.merge)(module.default);
                     }
-                }).catch(() => {
+                }
+                catch (error) {
+                    console.log(error);
                     throw new exception_1.HttpException({
                         msg: '配置加载错误',
                         errorCode: errorcode_1.ErrorCode.ERROR_ROUTE,
                         statusCode: 500
                     });
-                });
+                }
             }
-        });
+        }
     }
 };
-// 读取配置属性
-const getConfig = (configPath) => {
+// 初始化配置文件
+const initConfig = async (configPath) => {
     // 配置目录, 默认会读取./config目录下的所有配置文件
     const configDir = path_1.default.resolve(process.cwd(), configPath ?? defaultConfigPath);
-    loadConfig(configDir);
+    await loadConfig(configDir);
+};
+exports.initConfig = initConfig;
+// 读取配置属性
+const getConfig = (cfg = {}) => {
     return (0, lodash_1.merge)({
         app: {
             port: 5985,
@@ -87,15 +94,6 @@ const getConfig = (configPath) => {
             static_path: 'public',
             validate_path: 'validate', // 默认验证器目录地址
         }
-    }, appConfig);
+    }, appConfig, cfg);
 };
 exports.getConfig = getConfig;
-// 设置配置属性
-const setConfig = (oldObj, newObj) => {
-    return (0, lodash_1.merge)(oldObj, newObj);
-};
-exports.setConfig = setConfig;
-exports.default = {
-    getConfig: exports.getConfig,
-    setConfig: exports.setConfig
-};

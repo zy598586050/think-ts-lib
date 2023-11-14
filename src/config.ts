@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-11-10 15:19:41
+ * @LastEditTime: 2023-11-14 12:11:25
  */
 import fs from 'fs'
 import path from 'path'
@@ -9,39 +9,45 @@ import { merge } from 'lodash'
 import { HttpException } from './exception'
 import { ErrorCode } from './errorcode'
 
-let appConfig: Record<string, any> = {}
 const defaultConfigPath = 'config' // 配置目录, 默认会读取./config目录下的所有配置文件
+let appConfig: Record<string, any> = {} // 加载的配置文件里的配置
 
 // 加载配置
-const loadConfig = (configDir: string) => {
+const loadConfig = async (configDir: string) => {
     // 只有存在该目录才会去合并
     if (fs.existsSync(configDir) && fs.statSync(configDir).isDirectory()) {
-        fs.readdirSync(configDir).forEach((file) => {
+        for (const file of fs.readdirSync(configDir)) {
             const modulePath = path.join(configDir, file)
             if (fs.statSync(modulePath).isDirectory()) {
-                loadConfig(modulePath)
+                await loadConfig(modulePath)
             } else if (file.endsWith('.ts')) {
-                import(modulePath).then((module) => {
+                try {
+                    const module = await import(modulePath)
                     if (module && module.default) {
-                        appConfig[file.replace('.ts', '')] = module.default
+                        appConfig = merge(module.default)
                     }
-                }).catch(() => {
+                } catch (error) {
+                    console.log(error)
                     throw new HttpException({
                         msg: '配置加载错误',
                         errorCode: ErrorCode.ERROR_ROUTE,
                         statusCode: 500
                     })
-                })
+                }
             }
-        })
+        }
     }
 }
 
-// 读取配置属性
-export const getConfig = (configPath?: string) => {
+// 初始化配置文件
+export const initConfig = async (configPath?: string) => {
     // 配置目录, 默认会读取./config目录下的所有配置文件
     const configDir = path.resolve(process.cwd(), configPath ?? defaultConfigPath)
-    loadConfig(configDir)
+    await loadConfig(configDir)
+}
+
+// 读取配置属性
+export const getConfig = (cfg: Object = {}) => {
     return merge({
         app: {
             port: 5985, // 项目启动端口
@@ -60,15 +66,5 @@ export const getConfig = (configPath?: string) => {
             static_path: 'public', // 默认静态资源目录地址
             validate_path: 'validate', // 默认验证器目录地址
         }
-    }, appConfig)
-}
-
-// 设置配置属性
-export const setConfig = (oldObj: Record<string, any>, newObj: Record<string, any>) => {
-    return merge(oldObj, newObj)
-}
-
-export default {
-    getConfig,
-    setConfig
+    }, appConfig, cfg)
 }

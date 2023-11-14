@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-13 16:53:49
+ * @LastEditTime: 2023-11-14 12:14:33
  */
 import path from 'path'
 import { Context } from 'koa'
@@ -13,7 +13,6 @@ import { createApp, importVue, htmlView } from './view'
 import { Validate } from './validate'
 
 type VueType = 'vue' | 'react'
-const config = getConfig()
 
 export class Controller {
     /**
@@ -77,7 +76,7 @@ export class Controller {
 
         if (validate) {
             // 默认需要和控制器路径保持一致
-            const validatePath = path.resolve(process.cwd(), `${config.app.validate_path}/${validate_path || ctx.beforePath}.ts`)
+            const validatePath = path.resolve(process.cwd(), `${getConfig().app.validate_path}/${validate_path || ctx.beforePath}.ts`)
             import(validatePath).then((module) => {
                 const validateObj = module.default
                 Object.keys(validateObj?.rule).forEach(key => {

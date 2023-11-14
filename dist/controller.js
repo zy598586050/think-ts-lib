@@ -31,7 +31,7 @@ exports.View = exports.GetParams = exports.ApiException = exports.ShowSuccess = 
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-13 16:53:49
+ * @LastEditTime: 2023-11-14 12:14:33
  */
 const path_1 = __importDefault(require("path"));
 const exception_1 = require("./exception");
@@ -40,7 +40,6 @@ const errorcode_1 = require("./errorcode");
 const server_renderer_1 = require("vue/server-renderer");
 const view_1 = require("./view");
 const validate_1 = require("./validate");
-const config = (0, config_1.getConfig)();
 class Controller {
     /**
      * 返回成功的Json数据
@@ -99,7 +98,7 @@ class Controller {
         }
         if (validate) {
             // 默认需要和控制器路径保持一致
-            const validatePath = path_1.default.resolve(process.cwd(), `${config.app.validate_path}/${validate_path || ctx.beforePath}.ts`);
+            const validatePath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.validate_path}/${validate_path || ctx.beforePath}.ts`);
             Promise.resolve(`${validatePath}`).then(s => __importStar(require(s))).then((module) => {
                 const validateObj = module.default;
                 Object.keys(validateObj?.rule).forEach(key => {

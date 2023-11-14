@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 15:49:40
- * @LastEditTime: 2023-11-13 16:41:22
+ * @LastEditTime: 2023-11-14 12:15:53
  */
 import { Context } from 'koa'
 import koaRouter from 'koa-router'
@@ -15,8 +15,6 @@ interface RESULT {
     body: Object
     status: number
 }
-
-const config = getConfig()
 
 export interface RouteType {
     get: (url: string, str: string, middleware?: MiddleWareType) => void
@@ -124,7 +122,7 @@ const hasControllerFun = async (str: string): Promise<(ctx: Context) => Promise<
 
     const strArray = str.split('/')
     const beforePath = strArray.slice(0, -1).join('/')
-    const importUrl = path.resolve(process.cwd(), `${config.app.controller_path}/${beforePath}.ts`)
+    const importUrl = path.resolve(process.cwd(), `${getConfig().app.controller_path}/${beforePath}.ts`)
 
     try {
         const module = await import(importUrl)
@@ -163,7 +161,7 @@ const hasRepeatRoute = (url: string) => {
 }
 
 // 加载路由配置
-const routeDir = path.resolve(process.cwd(), config.app.route_path)
+const routeDir = path.resolve(process.cwd(), getConfig().app.route_path)
 const loadRoute = (routeDir: string) => {
     // 只有存在该目录才会去合并
     if (fs.existsSync(routeDir) && fs.statSync(routeDir).isDirectory()) {
