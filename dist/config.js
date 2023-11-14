@@ -30,7 +30,7 @@ exports.getConfig = exports.initConfig = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-11-14 18:26:17
+ * @LastEditTime: 2023-11-14 21:08:35
  */
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -88,13 +88,13 @@ const getConfig = (cfg = {}) => {
             log_error_filename: 'logs/log',
             log_error_pattern: 'yyy-MM-dd.log',
             route_path: 'route',
-            controller_path: 'controller',
-            middleware_path: 'middleware',
-            view_path: 'views',
+            controller_path: 'app/controller',
+            middleware_path: 'app/middleware',
+            view_path: 'app/views',
             static_path: 'public',
-            validate_path: 'validate',
+            validate_path: 'app/validate',
             utils_path: 'utils',
-            model_path: 'service',
+            model_path: 'app/service',
             jwt_key: 'ThinkTS',
             expiresIn: 60 * 60, // JWT过期时间
         }
