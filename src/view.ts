@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-28 16:59:04
- * @LastEditTime: 2023-11-14 12:16:32
+ * @LastEditTime: 2023-11-15 12:18:01
  */
 import { createSSRApp } from 'vue'
 import { parse } from '@vue/compiler-sfc'
@@ -89,10 +89,10 @@ const vueObjToString = (vueObj: any) => {
         return `template: \`${str}\`,`
     }
     const stringifyComponents = (components: any): string => {
-        return components ? `components: {${Object.keys(components).map(key => `${key}: ${vueObjToString(components[key])}`).join(',')}},` : ''
+        return components ? `components: {${Object.keys(components || {}).map(key => `${key}: ${vueObjToString(components[key])}`).join(',')}},` : ''
     }
     const stringifyFunction = (obj: any) => {
-        return Object.keys(obj).filter(key => typeof obj[key] === 'function').map(key => obj[key].toString()).join(',')
+        return Object.keys(obj || {}).filter(key => typeof obj[key] === 'function').map(key => obj[key].toString()).join(',')
     }
     const stringifyMethods = (methods: any) => {
         return methods ? `methods: {${stringifyFunction(methods)}},` : ''
@@ -148,7 +148,7 @@ export const importVue = (url: string) => {
             const code = `(${objStr?.[1]?.replace(/\r\n/g, '') || ''})`
             vueObj = new Function(`return ${code}`)() || {}
             if (vueObj?.components) {
-                Object.keys(vueObj?.components).forEach(key => {
+                Object.keys(vueObj?.components || {}).forEach(key => {
                     const iv = importVue(vueObj?.components?.[key])
                     vueObj.components[key] = {
                         template: iv.template,

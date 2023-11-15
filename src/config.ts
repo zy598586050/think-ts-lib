@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-11-14 21:08:35
+ * @LastEditTime: 2023-11-15 15:26:08
  */
 import fs from 'fs'
 import path from 'path'
@@ -24,7 +24,7 @@ const loadConfig = async (configDir: string) => {
                 try {
                     const module = await import(modulePath)
                     if (module && module.default) {
-                        appConfig = merge(module.default)
+                        appConfig = merge(appConfig, module.default)
                     }
                 } catch (error) {
                     console.log(error)

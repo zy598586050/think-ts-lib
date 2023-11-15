@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-14 18:08:34
+ * @LastEditTime: 2023-11-15 18:23:36
  */
 import path from 'path'
 import { Context } from 'koa'
@@ -11,6 +11,7 @@ import { ErrorCode } from './errorcode'
 import { renderToString } from 'vue/server-renderer'
 import { createApp, importVue, htmlView } from './view'
 import { Validate } from './validate'
+import ThinkDb from './thinkdb'
 
 type VueType = 'vue' | 'react'
 
@@ -79,7 +80,7 @@ export class Controller {
             const validatePath = path.resolve(process.cwd(), `${getConfig().app.validate_path}/${validate_path || ctx.beforePath}${(validate_path || ctx.beforePath).endsWith('.ts') ? '' : '.ts'}`)
             import(validatePath).then((module) => {
                 const validateObj = module.default
-                Object.keys(validateObj?.rule).forEach(key => {
+                Object.keys(validateObj?.rule || {}).forEach(key => {
                     // 只验证有验证规则的参数
                     // 1. key 要验证的键
                     // 2. result[key] 要验证的值
@@ -149,6 +150,10 @@ export class Controller {
         }
         return model
     }
+
+    Db(tableName?: string, db?: string) {
+        return new ThinkDb().Db(tableName, db)
+    }
 }
 
-export const { ShowSuccess, ApiException, GetParams, View, M } = new Controller()
+export const { ShowSuccess, ApiException, GetParams, View, M, Db } = new Controller()

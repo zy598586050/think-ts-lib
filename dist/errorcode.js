@@ -4,7 +4,7 @@ exports.ErrorCode = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-18 10:15:00
- * @LastEditTime: 2023-11-14 16:59:56
+ * @LastEditTime: 2023-11-15 19:01:40
  */
 var ErrorCode;
 (function (ErrorCode) {
@@ -12,7 +12,7 @@ var ErrorCode;
     ErrorCode[ErrorCode["ERROR_ROUTE"] = 20000] = "ERROR_ROUTE";
     ErrorCode[ErrorCode["ERROR_VALIDATE"] = 30000] = "ERROR_VALIDATE";
     ErrorCode[ErrorCode["ERROR_TOKEN"] = 30001] = "ERROR_TOKEN";
-    ErrorCode[ErrorCode["ERROR_MYSQL"] = 40000] = "ERROR_MYSQL";
+    ErrorCode[ErrorCode["ERROR_MYSQL"] = 42000] = "ERROR_MYSQL";
     ErrorCode[ErrorCode["ERROR_REDIS"] = 50000] = "ERROR_REDIS";
     ErrorCode[ErrorCode["ERROR_ES"] = 60000] = "ERROR_ES";
     ErrorCode[ErrorCode["ERROR_MONGODB"] = 70000] = "ERROR_MONGODB";

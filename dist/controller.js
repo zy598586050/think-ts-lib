@@ -27,11 +27,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.M = exports.View = exports.GetParams = exports.ApiException = exports.ShowSuccess = exports.Controller = void 0;
+exports.Db = exports.M = exports.View = exports.GetParams = exports.ApiException = exports.ShowSuccess = exports.Controller = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-14 18:08:34
+ * @LastEditTime: 2023-11-15 18:23:36
  */
 const path_1 = __importDefault(require("path"));
 const exception_1 = require("./exception");
@@ -40,6 +40,7 @@ const errorcode_1 = require("./errorcode");
 const server_renderer_1 = require("vue/server-renderer");
 const view_1 = require("./view");
 const validate_1 = require("./validate");
+const thinkdb_1 = __importDefault(require("./thinkdb"));
 class Controller {
     /**
      * 返回成功的Json数据
@@ -101,7 +102,7 @@ class Controller {
             const validatePath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.validate_path}/${validate_path || ctx.beforePath}${(validate_path || ctx.beforePath).endsWith('.ts') ? '' : '.ts'}`);
             Promise.resolve(`${validatePath}`).then(s => __importStar(require(s))).then((module) => {
                 const validateObj = module.default;
-                Object.keys(validateObj?.rule).forEach(key => {
+                Object.keys(validateObj?.rule || {}).forEach(key => {
                     // 只验证有验证规则的参数
                     // 1. key 要验证的键
                     // 2. result[key] 要验证的值
@@ -172,6 +173,9 @@ class Controller {
         }
         return model;
     }
+    Db(tableName, db) {
+        return new thinkdb_1.default().Db(tableName, db);
+    }
 }
 exports.Controller = Controller;
-_a = new Controller(), exports.ShowSuccess = _a.ShowSuccess, exports.ApiException = _a.ApiException, exports.GetParams = _a.GetParams, exports.View = _a.View, exports.M = _a.M;
+_a = new Controller(), exports.ShowSuccess = _a.ShowSuccess, exports.ApiException = _a.ApiException, exports.GetParams = _a.GetParams, exports.View = _a.View, exports.M = _a.M, exports.Db = _a.Db;

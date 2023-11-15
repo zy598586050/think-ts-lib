@@ -30,7 +30,7 @@ exports.getConfig = exports.initConfig = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-11-14 21:08:35
+ * @LastEditTime: 2023-11-15 15:26:08
  */
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -52,7 +52,7 @@ const loadConfig = async (configDir) => {
                 try {
                     const module = await Promise.resolve(`${modulePath}`).then(s => __importStar(require(s)));
                     if (module && module.default) {
-                        appConfig = (0, lodash_1.merge)(module.default);
+                        appConfig = (0, lodash_1.merge)(appConfig, module.default);
                     }
                 }
                 catch (error) {

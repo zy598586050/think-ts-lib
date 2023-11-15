@@ -7,7 +7,7 @@ exports.importVue = exports.htmlView = exports.createApp = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-28 16:59:04
- * @LastEditTime: 2023-11-14 12:16:32
+ * @LastEditTime: 2023-11-15 12:18:01
  */
 const vue_1 = require("vue");
 const compiler_sfc_1 = require("@vue/compiler-sfc");
@@ -89,10 +89,10 @@ const vueObjToString = (vueObj) => {
         return `template: \`${str}\`,`;
     };
     const stringifyComponents = (components) => {
-        return components ? `components: {${Object.keys(components).map(key => `${key}: ${vueObjToString(components[key])}`).join(',')}},` : '';
+        return components ? `components: {${Object.keys(components || {}).map(key => `${key}: ${vueObjToString(components[key])}`).join(',')}},` : '';
     };
     const stringifyFunction = (obj) => {
-        return Object.keys(obj).filter(key => typeof obj[key] === 'function').map(key => obj[key].toString()).join(',');
+        return Object.keys(obj || {}).filter(key => typeof obj[key] === 'function').map(key => obj[key].toString()).join(',');
     };
     const stringifyMethods = (methods) => {
         return methods ? `methods: {${stringifyFunction(methods)}},` : '';
@@ -148,7 +148,7 @@ const importVue = (url) => {
             const code = `(${objStr?.[1]?.replace(/\r\n/g, '') || ''})`;
             vueObj = new Function(`return ${code}`)() || {};
             if (vueObj?.components) {
-                Object.keys(vueObj?.components).forEach(key => {
+                Object.keys(vueObj?.components || {}).forEach(key => {
                     const iv = (0, exports.importVue)(vueObj?.components?.[key]);
                     vueObj.components[key] = {
                         template: iv.template,
