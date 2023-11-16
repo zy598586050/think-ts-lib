@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-11-15 10:45:17
- * @LastEditTime: 2023-11-16 19:09:06
+ * @LastEditTime: 2023-11-16 19:12:31
  */
 import { createPool, Pool, format } from 'mysql2/promise'
 import { getConfig } from './config'
@@ -314,14 +314,14 @@ export default class ThinkDb {
     /**
      * 删除数据
      * @param options 设置选项
-     * -------@param isDelete 是否是软删除，默认是 
+     * -------@param isDeleteFlag 是否是软删除，默认是 
      * -------@param isShowSql 是否打印最终执行的SQL语句，默认不打印
      * -------@param deleteTime 删除时间字段名，默认 delete_time
      * @returns 
      */
-    async delete(options: { isDelete?: boolean; isShowSql?: boolean; deleteTime?: string } = {}) {
-        const { isDelete, isShowSql, deleteTime } = { isDelete: true, isShowSql: false, deleteTime: getConfig()?.app?.deleteTime, ...options }
-        if (isDelete) {
+    async delete(options: { isDeleteFlag?: boolean; isShowSql?: boolean; deleteTime?: string } = {}) {
+        const { isDeleteFlag, isShowSql, deleteTime } = { isDeleteFlag: true, isShowSql: false, deleteTime: getConfig()?.app?.deleteTime, ...options }
+        if (isDeleteFlag) {
             const now = moment().format('YYYY-MM-DD HH:mm:ss')
             return await this.update({ [deleteTime]: now }, { isAutoTime: false, isShowSql })
         } else {
