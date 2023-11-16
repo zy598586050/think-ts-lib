@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-11-14 12:29:10
- * @LastEditTime: 2023-11-14 20:49:04
+ * @LastEditTime: 2023-11-16 12:01:30
  */
 import fs from 'fs'
 import ip from 'ip'
@@ -17,6 +17,7 @@ import { getConfig } from './config'
 import { ErrorCode } from './errorcode'
 import { HttpException } from './exception'
 import { KJUR, hextob64, KEYUTIL } from 'jsrsasign'
+import moment from 'moment'
 
 interface WXPAY {
     appid?: string
@@ -50,6 +51,8 @@ interface OSSTYPE {
 
 // 常用工具函数
 export let Utils = {
+    // 时间处理
+    moment,
     // 首字母大写
     firstToUpper(str: string) {
         return str.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase())

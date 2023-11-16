@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-11-15 15:26:08
+ * @LastEditTime: 2023-11-16 16:26:16
  */
 import fs from 'fs'
 import path from 'path'
@@ -69,6 +69,10 @@ export const getConfig = (cfg: Object = {}) => {
             model_path: 'app/service', // 默认模型目录地址
             jwt_key: 'ThinkTS', // JWT加密的密钥
             expiresIn: 60 * 60, // JWT过期时间
+            sqlDebug: false, // 全局SQL调试，开启后执行所有的SQL都会在控制台打印
+            createTime: 'create_time', // 数据库全局创建时间
+            updateTime: 'update_time', // 数据库全局更新时间
+            deleteTime: 'delete_time', // 数据库全局软删除时间
         }
     }, appConfig, cfg)
 }

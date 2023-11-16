@@ -30,7 +30,7 @@ exports.Utils = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-11-14 12:29:10
- * @LastEditTime: 2023-11-14 20:49:04
+ * @LastEditTime: 2023-11-16 12:01:30
  */
 const fs_1 = __importDefault(require("fs"));
 const ip_1 = __importDefault(require("ip"));
@@ -46,8 +46,11 @@ const config_1 = require("./config");
 const errorcode_1 = require("./errorcode");
 const exception_1 = require("./exception");
 const jsrsasign_1 = require("jsrsasign");
+const moment_1 = __importDefault(require("moment"));
 // 常用工具函数
 exports.Utils = {
+    // 时间处理
+    moment: moment_1.default,
     // 首字母大写
     firstToUpper(str) {
         return str.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase());

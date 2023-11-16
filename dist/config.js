@@ -30,7 +30,7 @@ exports.getConfig = exports.initConfig = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-11-15 15:26:08
+ * @LastEditTime: 2023-11-16 16:26:16
  */
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -96,7 +96,11 @@ const getConfig = (cfg = {}) => {
             utils_path: 'utils',
             model_path: 'app/service',
             jwt_key: 'ThinkTS',
-            expiresIn: 60 * 60, // JWT过期时间
+            expiresIn: 60 * 60,
+            sqlDebug: false,
+            createTime: 'create_time',
+            updateTime: 'update_time',
+            deleteTime: 'delete_time', // 数据库全局软删除时间
         }
     }, appConfig, cfg);
 };

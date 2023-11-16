@@ -1,12 +1,17 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-11-15 10:45:17
- * @LastEditTime: 2023-11-15 21:14:08
+ * @LastEditTime: 2023-11-16 19:09:06
  */
 import { createPool, Pool, format } from 'mysql2/promise'
 import { getConfig } from './config'
+import moment from 'moment'
 
 type CONDITION = '=' | '!=' | '>' | '<' | '>=' | '<=' | '<>'
+type SORT = 'DESC' | 'ASC'
+interface DBOBJECT {
+    [key: string]: any
+}
 
 export default class ThinkDb {
 
@@ -27,11 +32,10 @@ export default class ThinkDb {
 
     // 构造函数
     constructor() {
-        const that = this
         const mysqlConfig = getConfig()?.mysql || {}
         Object.keys(mysqlConfig).forEach((key, index) => {
             if (index === 0) this.db = key
-            that.pool[key] = createPool({
+            this.pool[key] = createPool({
                 host: mysqlConfig[key].host,
                 port: mysqlConfig[key].port,
                 user: mysqlConfig[key].user,
@@ -50,16 +54,6 @@ export default class ThinkDb {
     Db(tableName: string = '', db: string = this.db) {
         this.db = db
         this.tableName = tableName
-        return this
-    }
-
-    /**
-     * 指定要显示的字段
-     * @param str 字段名用英文逗号隔开，如：id,name,age
-     * @returns 
-     */
-    field(str: string) {
-        this.fieldStr = str
         return this
     }
 
@@ -159,7 +153,199 @@ export default class ThinkDb {
         return this
     }
 
-    order(field: string, sort: string = 'DESC') {}
+    /**
+     * 排序
+     * @param field 排序的字段
+     * @param sort 排序规则，DESC倒序 ASC正序
+     * @returns 
+     */
+    order(field: string, sort: SORT = 'DESC') {
+        this.whereStr += `ORDER BY ${field} ${sort} `
+        return this
+    }
+
+    /**
+     * 分页查询
+     * @param current 第几页
+     * @param size 每页显示多少条
+     * @returns 
+     */
+    page(current: number, size: number) {
+        this.whereStr += `LIMIT ${(current - 1) * size}, ${size}`
+        return this
+    }
+
+    /**
+     * 限制查询的条数
+     * @param num 要查询的条数
+     * @returns 
+     */
+    limit(num: number) {
+        this.whereStr += `LIMIT ${num}`
+        return this
+    }
+
+    /**
+     * 指定要显示的字段
+     * @param str 字段名用英文逗号隔开，如：id,name,age
+     * @param isDistinct 是否去重，默认不开启
+     * @returns 
+     */
+    field(str: string, isDistinct: boolean = false) {
+        this.fieldStr = `${isDistinct ? 'DISTINCT ' : ''}${str}`
+        return this
+    }
+
+    /**
+     * 分组查询
+     * @param field 字段名
+     * @returns 
+     */
+    group(field: string) {
+        this.whereStr += `GROUP BY ${field} `
+        return this
+    }
+
+    /**
+     * 新增一条数据
+     * @param obj 数据对象
+     * @param options 设置选项
+     * -------@param isAutoTime 是否开启自动时间戳，默认不开启
+     * -------@param isShowSql 是否打印最终执行的SQL语句，默认不打印
+     * -------@param createTime 创建时间字段名，默认 create_time
+     * -------@param updateTime 更新时间字段名，默认 update_time
+     */
+    async insert(obj: DBOBJECT = {}, options: { isAutoTime?: boolean; isShowSql?: boolean; createTime?: string; updateTime?: string } = {}) {
+        const { isAutoTime, isShowSql, createTime, updateTime } = { isAutoTime: false, isShowSql: false, createTime: getConfig()?.app?.createTime, updateTime: getConfig()?.app?.updateTime, ...options }
+        const len = Object.keys(obj).length
+        if (len > 0) {
+            let keyStr = ''
+            let valueStr = ''
+            Object.keys(obj).forEach((key, index) => {
+                keyStr += `${key}${index === len - 1 ? '' : ', '}`
+                valueStr += `?${index === len - 1 ? '' : ', '}`
+                this.values.push(obj[key])
+            })
+            if (isAutoTime) {
+                keyStr += `, ${createTime}, ${updateTime}`
+                valueStr += ', ?, ?'
+                const now = moment().format('YYYY-MM-DD HH:mm:ss')
+                this.values.push(now, now)
+            }
+            this.lastSql = format(`INSERT INTO ${this.tableName} (${keyStr}) VALUES (${valueStr})`, this.values)
+            if (getConfig()?.app?.sqlDebug || isShowSql) console.log(`SQL: ${this.lastSql}`)
+            const [rows] = await this.pool[this.db].execute(this.lastSql)
+            return rows || {}
+        }
+    }
+
+    /**
+     * 新增多条数据, 注意数据格式一定要保持一致
+     * @param objArray 数据对象集合
+     * @param options 设置选项
+     * -------@param isAutoTime 是否开启自动时间戳，默认不开启
+     * -------@param isShowSql 是否打印最终执行的SQL语句，默认不打印
+     * -------@param createTime 创建时间字段名，默认 create_time
+     * -------@param updateTime 更新时间字段名，默认 update_time
+     */
+    async insertAll(objArray: DBOBJECT[] = [], options: { isAutoTime?: boolean; isShowSql?: boolean; createTime?: string; updateTime?: string } = {}) {
+        const { isAutoTime, isShowSql, createTime, updateTime } = { isAutoTime: false, isShowSql: false, createTime: getConfig()?.app?.createTime, updateTime: getConfig()?.app?.updateTime, ...options }
+        let keyStr = ''
+        let valueStr = ''
+        objArray.forEach((value, idx) => {
+            const len = Object.keys(value).length
+            if (len > 0) {
+                let oValueStr = ''
+                Object.keys(value).forEach((key, index) => {
+                    if (idx === 0) keyStr += `${key}${index === len - 1 ? '' : ', '}`
+                    oValueStr += `?${index === len - 1 ? '' : ', '}`
+                    this.values.push(value[key])
+                })
+                if (isAutoTime) {
+                    if (idx === 0) {
+                        keyStr += `, ${createTime}, ${updateTime}`
+                    }
+                    oValueStr += ', ?, ?'
+                    const now = moment().format('YYYY-MM-DD HH:mm:ss')
+                    this.values.push(now, now)
+                }
+                valueStr += `(${oValueStr})${idx === objArray.length - 1 ? '' : ','}`
+            }
+        })
+        if (objArray.length > 0) {
+            this.lastSql = format(`INSERT INTO ${this.tableName} (${keyStr}) VALUES ${valueStr}`, this.values)
+            if (getConfig()?.app?.sqlDebug || isShowSql) console.log(`SQL: ${this.lastSql}`)
+            const [rows] = await this.pool[this.db].execute(this.lastSql)
+            return rows || {}
+        }
+    }
+
+    /**
+     * 更新数据
+     * @param obj 数据对象
+     * @param options 设置选项
+     * -------@param isAutoTime 是否开启自动时间戳，默认不开启
+     * -------@param isShowSql 是否打印最终执行的SQL语句，默认不打印
+     * -------@param updateTime 更新时间字段名，默认 update_time
+     */
+    async update(obj: DBOBJECT = {}, options: { isAutoTime?: boolean; isShowSql?: boolean; updateTime?: string } = {}) {
+        const { isAutoTime, isShowSql, updateTime } = { isAutoTime: false, isShowSql: false, updateTime: getConfig()?.app?.updateTime, ...options }
+        const len = Object.keys(obj).length
+        if (len > 0) {
+            let setStr = ''
+            let vals = []
+            Object.keys(obj).forEach((key, index) => {
+                setStr += `${key} = ?${index === len - 1 ? '' : ', '}`
+                vals.push(obj[key])
+            })
+            if (isAutoTime) {
+                const now = moment().format('YYYY-MM-DD HH:mm:ss')
+                setStr += `, ${updateTime} = ?`
+                vals.push(now)
+            }
+            this.values.unshift(...vals)
+            this.lastSql = format(`UPDATE ${this.tableName} SET ${setStr} ${this.whereStr}`, this.values)
+            if (getConfig()?.app?.sqlDebug || isShowSql) console.log(`SQL: ${this.lastSql}`)
+            const [rows] = await this.pool[this.db].execute(this.lastSql)
+            return rows || {}
+        }
+    }
+
+    /**
+     * 删除数据
+     * @param options 设置选项
+     * -------@param isDelete 是否是软删除，默认是 
+     * -------@param isShowSql 是否打印最终执行的SQL语句，默认不打印
+     * -------@param deleteTime 删除时间字段名，默认 delete_time
+     * @returns 
+     */
+    async delete(options: { isDelete?: boolean; isShowSql?: boolean; deleteTime?: string } = {}) {
+        const { isDelete, isShowSql, deleteTime } = { isDelete: true, isShowSql: false, deleteTime: getConfig()?.app?.deleteTime, ...options }
+        if (isDelete) {
+            const now = moment().format('YYYY-MM-DD HH:mm:ss')
+            return await this.update({ [deleteTime]: now }, { isAutoTime: false, isShowSql })
+        } else {
+            this.lastSql = format(`DELETE FROM ${this.tableName} ${this.whereStr}`, this.values)
+            if (!this.lastSql.includes('WHERE')) return
+            if (getConfig()?.app?.sqlDebug || isShowSql) console.log(`SQL: ${this.lastSql}`)
+            const [rows] = await this.pool[this.db].execute(this.lastSql)
+            return rows || {}
+        }
+    }
+
+    /**
+     * 查询一条数据
+     * @param isShowSql 是否打印最终执行的SQL语句，默认不打印
+     * @returns 
+     */
+    async findOne(isShowSql: boolean = false) {
+        this.whereStr += 'LIMIT 1'
+        this.lastSql = format(`SELECT ${this.fieldStr} FROM ${this.tableName} ${this.whereStr}`, this.values)
+        if (getConfig()?.app?.sqlDebug || isShowSql) console.log(`SQL: ${this.lastSql}`)
+        const [rows] = await this.pool[this.db].execute(this.lastSql)
+        // @ts-ignore
+        return rows?.[0] || {}
+    }
 
     /**
      * 查询多条数据
@@ -168,7 +354,7 @@ export default class ThinkDb {
      */
     async select(isShowSql: boolean = false) {
         this.lastSql = format(`SELECT ${this.fieldStr} FROM ${this.tableName} ${this.whereStr}`, this.values)
-        if (isShowSql) console.log(`SQL: ${this.lastSql}`)
+        if (getConfig()?.app?.sqlDebug || isShowSql) console.log(`SQL: ${this.lastSql}`)
         const [rows] = await this.pool[this.db].execute(this.lastSql)
         return rows || []
     }
@@ -182,7 +368,7 @@ export default class ThinkDb {
      */
     async query(sql: string, values: (number | string)[] = [], isShowSql: boolean = false) {
         this.lastSql = format(sql, values)
-        if (isShowSql) console.log(`SQL: ${this.lastSql}`)
+        if (getConfig()?.app?.sqlDebug || isShowSql) console.log(`SQL: ${this.lastSql}`)
         const [rows] = await this.pool[this.db].execute(this.lastSql)
         return rows || []
     }
