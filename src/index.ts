@@ -1,18 +1,17 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 10:20:31
- * @LastEditTime: 2023-11-15 14:57:38
+ * @LastEditTime: 2023-11-21 20:16:50
  */
-import { Context } from 'koa'
 import start from './start'
 import { getConfig } from './config'
 import { RouteType, ExceptionType } from './router'
-import { Controller, ShowSuccess, ApiException, GetParams, View, M, Db } from './controller'
+import { Controller, ShowSuccess, ApiException, GetParams, View, M, Db, EDb, RDb, MDb } from './controller'
 import Log4j from './log4j'
 import { Utils } from './utils'
 
 export const appConfig = getConfig()
-export { RouteType, ExceptionType, Context, Controller, ShowSuccess, ApiException, GetParams, View, Log4j, Utils, M, Db }
+export { RouteType, ExceptionType, Controller, ShowSuccess, ApiException, GetParams, View, Log4j, Utils, M, Db, EDb, RDb, MDb }
 export default {
     start,
     appConfig: getConfig(),
@@ -24,5 +23,8 @@ export default {
     Log4j,
     Utils,
     M,
-    Db
+    Db,
+    EDb,
+    RDb,
+    MDb
 }

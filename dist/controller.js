@@ -27,11 +27,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Db = exports.M = exports.View = exports.GetParams = exports.ApiException = exports.ShowSuccess = exports.Controller = void 0;
+exports.MDb = exports.RDb = exports.EDb = exports.Db = exports.M = exports.View = exports.GetParams = exports.ApiException = exports.ShowSuccess = exports.Controller = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-15 18:23:36
+ * @LastEditTime: 2023-11-21 20:16:20
  */
 const path_1 = __importDefault(require("path"));
 const exception_1 = require("./exception");
@@ -41,6 +41,9 @@ const server_renderer_1 = require("vue/server-renderer");
 const view_1 = require("./view");
 const validate_1 = require("./validate");
 const thinkdb_1 = __importDefault(require("./thinkdb"));
+const elasticsearch_1 = __importDefault(require("./elasticsearch"));
+const thinkredis_1 = __importDefault(require("./thinkredis"));
+const mongodb_1 = __importDefault(require("./mongodb"));
 class Controller {
     /**
      * 返回成功的Json数据
@@ -173,9 +176,40 @@ class Controller {
         }
         return model;
     }
+    /**
+     * ThinkDb数据库工具
+     * @param tableName 表名
+     * @param db 数据源
+     * @returns
+     */
     Db(tableName, db) {
-        return new thinkdb_1.default().Db(tableName, db);
+        return new thinkdb_1.default(tableName, db);
+    }
+    /**
+     * Elasticsearch工具
+     * @param db 数据源
+     * @returns
+     */
+    EDb(db) {
+        return new elasticsearch_1.default(db);
+    }
+    /**
+     * redis工具
+     * @param db 数据源
+     * @returns
+     */
+    RDb(db) {
+        return new thinkredis_1.default(db);
+    }
+    /**
+     * mongodb数据库工具
+     * @param modelName 模型名
+     * @param db 数据源
+     * @returns
+     */
+    MDb(modelName, db) {
+        return new mongodb_1.default(modelName, db);
     }
 }
 exports.Controller = Controller;
-_a = new Controller(), exports.ShowSuccess = _a.ShowSuccess, exports.ApiException = _a.ApiException, exports.GetParams = _a.GetParams, exports.View = _a.View, exports.M = _a.M, exports.Db = _a.Db;
+_a = new Controller(), exports.ShowSuccess = _a.ShowSuccess, exports.ApiException = _a.ApiException, exports.GetParams = _a.GetParams, exports.View = _a.View, exports.M = _a.M, exports.Db = _a.Db, exports.EDb = _a.EDb, exports.RDb = _a.RDb, exports.MDb = _a.MDb;

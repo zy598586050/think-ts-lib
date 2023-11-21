@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-11-16 16:26:16
+ * @LastEditTime: 2023-11-21 11:50:02
  */
 import fs from 'fs'
 import path from 'path'
@@ -73,6 +73,11 @@ export const getConfig = (cfg: Object = {}) => {
             createTime: 'create_time', // 数据库全局创建时间
             updateTime: 'update_time', // 数据库全局更新时间
             deleteTime: 'delete_time', // 数据库全局软删除时间
+        },
+        ws: {
+            enable: false, // 是否开启websocket，默认不开启
+            port: 2346,
+            websocket_path: 'websocket/ws', // websocket文件地址
         }
     }, appConfig, cfg)
 }

@@ -30,7 +30,7 @@ exports.getConfig = exports.initConfig = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 16:10:03
- * @LastEditTime: 2023-11-16 16:26:16
+ * @LastEditTime: 2023-11-21 11:50:02
  */
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -101,6 +101,11 @@ const getConfig = (cfg = {}) => {
             createTime: 'create_time',
             updateTime: 'update_time',
             deleteTime: 'delete_time', // 数据库全局软删除时间
+        },
+        ws: {
+            enable: false,
+            port: 2346,
+            websocket_path: 'websocket/ws', // websocket文件地址
         }
     }, appConfig, cfg);
 };

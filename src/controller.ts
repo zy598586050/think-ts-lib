@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-15 18:23:36
+ * @LastEditTime: 2023-11-21 20:16:20
  */
 import path from 'path'
 import { Context } from 'koa'
@@ -12,6 +12,9 @@ import { renderToString } from 'vue/server-renderer'
 import { createApp, importVue, htmlView } from './view'
 import { Validate } from './validate'
 import ThinkDb from './thinkdb'
+import ThinkEDb from './elasticsearch'
+import ThinkRDb from './thinkredis'
+import ThinkMDb from './mongodb'
 
 type VueType = 'vue' | 'react'
 
@@ -151,9 +154,43 @@ export class Controller {
         return model
     }
 
+    /**
+     * ThinkDb数据库工具
+     * @param tableName 表名
+     * @param db 数据源
+     * @returns 
+     */
     Db(tableName?: string, db?: string) {
-        return new ThinkDb().Db(tableName, db)
+        return new ThinkDb(tableName, db)
+    }
+
+    /**
+     * Elasticsearch工具
+     * @param db 数据源
+     * @returns 
+     */
+    EDb(db?: string) {
+        return new ThinkEDb(db)
+    }
+
+    /**
+     * redis工具
+     * @param db 数据源
+     * @returns 
+     */
+    RDb(db?: string) {
+        return new ThinkRDb(db)
+    }
+
+    /**
+     * mongodb数据库工具
+     * @param modelName 模型名
+     * @param db 数据源
+     * @returns 
+     */
+    MDb(modelName: string, db?: string) {
+        return new ThinkMDb(modelName, db)
     }
 }
 
-export const { ShowSuccess, ApiException, GetParams, View, M, Db } = new Controller()
+export const { ShowSuccess, ApiException, GetParams, View, M, Db, EDb, RDb, MDb } = new Controller()

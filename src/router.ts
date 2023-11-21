@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 15:49:40
- * @LastEditTime: 2023-11-14 12:15:53
+ * @LastEditTime: 2023-11-21 10:44:44
  */
 import { Context } from 'koa'
 import koaRouter from 'koa-router'
@@ -38,7 +38,7 @@ const handleRoute = (method: METHOD, url: string, str: string, middleware?: Midd
     hasRepeatRoute(url)
     // 检测控制器方法是否存在, 存在就返回该方法
     const fn: Promise<(ctx: Context) => Promise<RESULT>> = hasControllerFun(str)
-    router[method](url, async (ctx: Context) => {
+    router[method](url, async (ctx: any) => {
         // 挂载控制器路径
         ctx.beforePath = str.split('/').slice(0, -1).join('/')
         ctx.fnName = (await (await fn)).name
