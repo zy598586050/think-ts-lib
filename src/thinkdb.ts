@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-11-15 10:45:17
- * @LastEditTime: 2023-11-21 14:05:29
+ * @LastEditTime: 2023-11-23 17:59:12
  */
 import { createPool, Pool, format, PoolConnection } from 'mysql2/promise'
 import { getConfig } from './config'
@@ -168,7 +168,7 @@ export default class ThinkDb {
      * @param size 每页显示多少条
      * @returns 
      */
-    page(current: number, size: number) {
+    page(current: number = 1, size: number = 10) {
         this.whereStr += `LIMIT ${(current - 1) * size}, ${size}`
         return this
     }
