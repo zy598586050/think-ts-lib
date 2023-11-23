@@ -1,3 +1,8 @@
+<!--
+ * @Author: zhangyu
+ * @Date: 2023-10-24 10:04:35
+ * @LastEditTime: 2023-11-23 14:27:36
+-->
 <p align="center">
   <img width="300px" src="https://www.think-js.cn/icon.png">
 </p>
@@ -20,9 +25,9 @@
 - 💪 减少造轮子拿来即用
 - 🔥 集成了众多常用SDK
 
-## think-js-lib
+## think-ts-lib
 
-[think-js-lib](https://www.npmjs.com/package/think-js-lib) 是 [ThinkJS框架](https://www.think-js.cn) 的核心依赖，两者互相依托不可分开。之所以将核心功能拆分成单独的依赖包，是为了避免核心包版本迭代过程中影响 ThinkJS框架层的业务逻辑。如果想使用 think-js-lib 升级后的新功能，只需要修改 ThinkJS框架中 ``package.json`` 里 ``think-js-lib`` 的版本，重新 ``install`` 即可。
+[think-ts-lib](https://www.npmjs.com/package/think-ts-lib) 是 [ThinkTS框架](https://www.thinkts.cn) 的核心依赖，两者互相依托不可分开。之所以将核心功能拆分成单独的依赖包，是为了避免核心包版本迭代过程中影响 ThinkJS框架层的业务逻辑。如果想使用 think-js-lib 升级后的新功能，只需要修改 ThinkJS框架中 ``package.json`` 里 ``think-js-lib`` 的版本，重新 ``install`` 即可。
 
 ## 目录结构
 
@@ -54,17 +59,17 @@
 卸载旧版重新安装
 
 ```
-pnpm uninstall think-js-lib
+npm uninstall think-ts-lib
 
-pnpm install think-js-lib@1.1.1
+npm install think-ts-lib
 ```
 
 修改 package.json 里版本号安装
 
 ```
-"think-js-lib": "1.1.1"
+"think-ts-lib": "1.1.1"
 
-pnpm install
+npm install
 
 ```
 
@@ -90,5 +95,5 @@ pnpm install
 
 ## 执照
 
-ThinkJS已申请软件著作，可在中国版权保护中心中查看
+ThinkTS已申请软件著作，可在中国版权保护中心中查看
 [CPCC](https://www.ccopyright.com.cn).

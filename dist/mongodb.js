@@ -26,7 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * @Author: zhangyu
  * @Date: 2023-11-21 18:18:15
- * @LastEditTime: 2023-11-21 20:32:41
+ * @LastEditTime: 2023-11-22 12:23:49
  */
 const mongoose_1 = __importStar(require("mongoose"));
 const config_1 = require("./config");
@@ -46,7 +46,7 @@ class MongoDb {
             if (index === 0)
                 db = key;
         });
-        mongoose_1.default.connect(`mongodb://${this.mongodbConfig[db].user}:${this.mongodbConfig[db].password}@${this.mongodbConfig[db].host}:${this.mongodbConfig[db].port}/${this.mongodbConfig[db].database}?useNewUrlParser=true`);
+        mongoose_1.default.connect(`mongodb://${this.mongodbConfig[db].user}:${this.mongodbConfig[db].password}@${this.mongodbConfig[db].host}:${this.mongodbConfig[db].port}/${this.mongodbConfig[db].database}`);
     }
     /**
      * 创建模型
@@ -75,13 +75,33 @@ class MongoDb {
         return this;
     }
     /**
+     * 新增数据
+     * @param obj 数据
+     * @param options 设置选项
+     * -------@param isAutoTime 是否开启自动时间戳，默认不开启
+     * -------@param createTime 创建时间字段名，默认 create_time
+     * -------@param updateTime 更新时间字段名，默认 update_time
+     * @returns
+     */
+    insert(obj, options = {}) {
+        const { isAutoTime, createTime, updateTime } = { isAutoTime: false, createTime: (0, config_1.getConfig)()?.app?.createTime, updateTime: (0, config_1.getConfig)()?.app?.updateTime, ...options };
+        const newModel = new this.model({
+            ...obj,
+            ...(isAutoTime ? {
+                [createTime]: Date.now,
+                [updateTime]: Date.now
+            } : {})
+        });
+        return newModel.save();
+    }
+    /**
      * 查询数据
      * @param whereObj 查询条件
      * @param current 第几页
      * @param size 每页多少条
      * @returns
      */
-    select(whereObj, current, size) {
+    select(whereObj = {}, current, size) {
         if (current && size) {
             return this.model.find(whereObj).skip((current - 1) * size).limit(size);
         }
@@ -95,14 +115,14 @@ class MongoDb {
      * @param updateObj 更新数据
      */
     update(whereObj, updateObj) {
-        return this.model.update(whereObj, updateObj);
+        return this.model.updateOne(whereObj, updateObj);
     }
     /**
      * 删除数据
      * @param whereObj 限制条件
      */
     delete(whereObj) {
-        return this.model.remove(whereObj);
+        return this.model.deleteOne(whereObj);
     }
 }
 exports.default = MongoDb;
