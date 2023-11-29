@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * @Author: zhangyu
  * @Date: 2023-11-15 10:45:17
- * @LastEditTime: 2023-11-21 14:05:29
+ * @LastEditTime: 2023-11-23 17:59:12
  */
 const promise_1 = require("mysql2/promise");
 const config_1 = require("./config");
@@ -154,7 +154,7 @@ class ThinkDb {
      * @param size 每页显示多少条
      * @returns
      */
-    page(current, size) {
+    page(current = 1, size = 10) {
         this.whereStr += `LIMIT ${(current - 1) * size}, ${size}`;
         return this;
     }
