@@ -3,14 +3,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MDb = exports.RDb = exports.EDb = exports.Db = exports.M = exports.Utils = exports.Log4j = exports.View = exports.GetParams = exports.ApiException = exports.ShowSuccess = exports.Controller = exports.appConfig = void 0;
+exports.MDb = exports.RDb = exports.EDb = exports.Db = exports.M = exports.Utils = exports.Log4j = exports.View = exports.GetParams = exports.ApiException = exports.ShowSuccess = exports.appConfig = exports.Controller = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 10:20:31
- * @LastEditTime: 2023-11-30 20:24:06
+ * @LastEditTime: 2023-11-30 20:52:53
  */
 const start_1 = __importDefault(require("./start"));
 const config_1 = require("./config");
+Object.defineProperty(exports, "appConfig", { enumerable: true, get: function () { return config_1.getConfig; } });
 const controller_1 = require("./controller");
 Object.defineProperty(exports, "Controller", { enumerable: true, get: function () { return controller_1.Controller; } });
 Object.defineProperty(exports, "ShowSuccess", { enumerable: true, get: function () { return controller_1.ShowSuccess; } });
@@ -26,10 +27,9 @@ const log4j_1 = __importDefault(require("./log4j"));
 exports.Log4j = log4j_1.default;
 const utils_1 = require("./utils");
 Object.defineProperty(exports, "Utils", { enumerable: true, get: function () { return utils_1.Utils; } });
-exports.appConfig = (0, config_1.getConfig)();
 exports.default = {
     start: start_1.default,
-    appConfig: exports.appConfig,
+    appConfig: config_1.getConfig,
     Controller: controller_1.Controller,
     ShowSuccess: controller_1.ShowSuccess,
     ApiException: controller_1.ApiException,
