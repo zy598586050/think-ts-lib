@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-21 20:16:20
+ * @LastEditTime: 2023-11-30 19:13:55
  */
 import path from 'path'
 import { Context } from 'koa'
@@ -60,6 +60,7 @@ export class Controller {
      */
     GetParams(ctx: Context, validate: boolean = false, validate_path?: string) {
         let result: any = {}
+        validate_path = validate_path ? (validate_path.startsWith('/') ? validate_path : `/${validate_path}`) : ''
 
         switch (ctx.request.method) {
             case 'GET':
