@@ -7,7 +7,7 @@ exports.MDb = exports.RDb = exports.EDb = exports.Db = exports.M = exports.Utils
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 10:20:31
- * @LastEditTime: 2023-11-21 20:16:50
+ * @LastEditTime: 2023-11-30 20:24:06
  */
 const start_1 = __importDefault(require("./start"));
 const config_1 = require("./config");
@@ -29,7 +29,7 @@ Object.defineProperty(exports, "Utils", { enumerable: true, get: function () { r
 exports.appConfig = (0, config_1.getConfig)();
 exports.default = {
     start: start_1.default,
-    appConfig: (0, config_1.getConfig)(),
+    appConfig: exports.appConfig,
     Controller: controller_1.Controller,
     ShowSuccess: controller_1.ShowSuccess,
     ApiException: controller_1.ApiException,

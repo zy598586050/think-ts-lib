@@ -31,7 +31,7 @@ exports.MDb = exports.RDb = exports.EDb = exports.Db = exports.M = exports.View 
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-21 20:16:20
+ * @LastEditTime: 2023-11-30 20:05:30
  */
 const path_1 = __importDefault(require("path"));
 const exception_1 = require("./exception");
@@ -84,6 +84,7 @@ class Controller {
      */
     GetParams(ctx, validate = false, validate_path) {
         let result = {};
+        validate_path = validate_path ? (validate_path.startsWith('/') ? validate_path : `/${validate_path}`) : '';
         switch (ctx.request.method) {
             case 'GET':
                 result = ctx.request.query;
@@ -102,7 +103,7 @@ class Controller {
         }
         if (validate) {
             // 默认需要和控制器路径保持一致
-            const validatePath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.validate_path}/${validate_path || ctx.beforePath}${(validate_path || ctx.beforePath).endsWith('.ts') ? '' : '.ts'}`);
+            const validatePath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.validate_path}${validate_path || ctx.beforePath}${(validate_path || ctx.beforePath).endsWith('.ts') ? '' : '.ts'}`);
             Promise.resolve(`${validatePath}`).then(s => __importStar(require(s))).then((module) => {
                 const validateObj = module.default;
                 Object.keys(validateObj?.rule || {}).forEach(key => {
@@ -161,7 +162,8 @@ class Controller {
      */
     async M(modelPath) {
         let model = null;
-        const modelDir = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.model_path}/${modelPath}${modelPath.endsWith('.ts') ? '' : '.ts'}`);
+        modelPath = modelPath.startsWith('/') ? modelPath : `/${modelPath}`;
+        const modelDir = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.model_path}${modelPath}${modelPath.endsWith('.ts') ? '' : '.ts'}`);
         try {
             const module = await Promise.resolve(`${modelDir}`).then(s => __importStar(require(s)));
             model = new module.default();
