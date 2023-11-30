@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-11-30 19:13:55
+ * @LastEditTime: 2023-11-30 20:05:30
  */
 import path from 'path'
 import { Context } from 'koa'
@@ -81,7 +81,7 @@ export class Controller {
 
         if (validate) {
             // 默认需要和控制器路径保持一致
-            const validatePath = path.resolve(process.cwd(), `${getConfig().app.validate_path}/${validate_path || ctx.beforePath}${(validate_path || ctx.beforePath).endsWith('.ts') ? '' : '.ts'}`)
+            const validatePath = path.resolve(process.cwd(), `${getConfig().app.validate_path}${validate_path || ctx.beforePath}${(validate_path || ctx.beforePath).endsWith('.ts') ? '' : '.ts'}`)
             import(validatePath).then((module) => {
                 const validateObj = module.default
                 Object.keys(validateObj?.rule || {}).forEach(key => {
@@ -140,7 +140,8 @@ export class Controller {
      */
     async M(modelPath: string) {
         let model = null
-        const modelDir = path.resolve(process.cwd(), `${getConfig().app.model_path}/${modelPath}${modelPath.endsWith('.ts') ? '' : '.ts'}`)
+        modelPath = modelPath.startsWith('/') ? modelPath : `/${modelPath}`
+        const modelDir = path.resolve(process.cwd(), `${getConfig().app.model_path}${modelPath}${modelPath.endsWith('.ts') ? '' : '.ts'}`)
         try {
             const module = await import(modelDir)
             model = new module.default()
