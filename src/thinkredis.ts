@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-11-21 14:30:29
- * @LastEditTime: 2023-11-21 18:15:36
+ * @LastEditTime: 2023-11-30 15:37:02
  */
 import redis from 'ioredis'
 import { getConfig } from './config'
@@ -100,6 +100,20 @@ export default class ThinkRedis {
      */
     hget(index: string, key: string) {
         return this.client.hget(index, key)
+    }
+
+    /**
+     * 获取所有
+     * @param index 索引
+     * @returns 
+     */
+    async hgetAll(index: string) {
+        const fields = await this.client.hkeys(index)
+        const values = await Promise.all(fields.map((field: string) => this.client.hget(index, field)))
+        return fields.reduce((result: any, field: string, index: number) => {
+            result[field] = values[index]
+            return result
+        }, {})
     }
 
     /**

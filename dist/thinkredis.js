@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * @Author: zhangyu
  * @Date: 2023-11-21 14:30:29
- * @LastEditTime: 2023-11-21 18:15:36
+ * @LastEditTime: 2023-11-30 15:37:02
  */
 const ioredis_1 = __importDefault(require("ioredis"));
 const config_1 = require("./config");
@@ -96,6 +96,19 @@ class ThinkRedis {
      */
     hget(index, key) {
         return this.client.hget(index, key);
+    }
+    /**
+     * 获取所有
+     * @param index 索引
+     * @returns
+     */
+    async hgetAll(index) {
+        const fields = await this.client.hkeys(index);
+        const values = await Promise.all(fields.map((field) => this.client.hget(index, field)));
+        return fields.reduce((result, field, index) => {
+            result[field] = values[index];
+            return result;
+        }, {});
     }
     /**
      * 删除
