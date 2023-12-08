@@ -7,7 +7,7 @@ exports.importVue = exports.htmlView = exports.createApp = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-28 16:59:04
- * @LastEditTime: 2023-11-15 12:18:01
+ * @LastEditTime: 2023-12-06 14:30:47
  */
 const vue_1 = require("vue");
 const compiler_sfc_1 = require("@vue/compiler-sfc");
@@ -35,6 +35,7 @@ const createApp = (data, template, obj) => {
     });
 };
 exports.createApp = createApp;
+let s = '';
 /**
  * 最终渲染的html
  * @param style 样式
@@ -49,6 +50,7 @@ const htmlView = (style, ssr, data, template, obj) => {
         // 插入样式
         const regStyle = /(<head>)([\s\S]*?)(<\/head>)/i;
         html = html.replace(regStyle, `$1$2<style>${style}</style>$3`);
+        s = '';
         // 插入vue服务端渲染代码
         const regSSR = /(<div id="app">)([\s\S]*?)(<\/div>)/i;
         html = html.replace(regSSR, `$1$2${ssr}$3`);
@@ -89,7 +91,7 @@ const vueObjToString = (vueObj) => {
         return `template: \`${str}\`,`;
     };
     const stringifyComponents = (components) => {
-        return components ? `components: {${Object.keys(components || {}).map(key => `${key}: ${vueObjToString(components[key])}`).join(',')}},` : '';
+        return components ? `components: {${Object.keys(components || {}).map(key => `${key}: ${components[key]}`).join(',')}},` : '';
     };
     const stringifyFunction = (obj) => {
         return Object.keys(obj || {}).filter(key => typeof obj[key] === 'function').map(key => obj[key].toString()).join(',');
@@ -124,10 +126,10 @@ const vueObjToString = (vueObj) => {
 const importVue = (url) => {
     let vueCode = '';
     let template = '';
-    let style = '';
     let vueObj = {};
+    url = url.startsWith('/') ? url : `/${url}`;
     try {
-        const viewPath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.view_path}/${url}${url.endsWith('.vue') ? '' : '.vue'}`);
+        const viewPath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.view_path}${url}${url.endsWith('.vue') ? '' : '.vue'}`);
         vueCode = fs_1.default.readFileSync(viewPath, 'utf-8');
     }
     catch (error) {
@@ -141,7 +143,7 @@ const importVue = (url) => {
     try {
         const { descriptor } = (0, compiler_sfc_1.parse)(vueCode);
         template = descriptor?.template?.content || '';
-        style = descriptor.styles.map(v => v.content).join();
+        s += descriptor.styles.map(v => v.content).join();
         const codeString = descriptor?.script?.content || '';
         const objStr = codeString.split('export default');
         if (objStr?.[1]) {
@@ -168,7 +170,7 @@ const importVue = (url) => {
     }
     return {
         template,
-        style,
+        style: s,
         vueObj
     };
 };

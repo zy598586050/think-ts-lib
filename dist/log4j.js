@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * @Author: zhangyu
  * @Date: 2023-11-13 19:47:22
- * @LastEditTime: 2023-11-14 12:15:08
+ * @LastEditTime: 2023-12-08 11:31:02
  */
 const log4js_1 = __importDefault(require("log4js"));
 const config_1 = require("./config");
@@ -18,7 +18,7 @@ const levels = {
     'error': log4js_1.default.levels.ERROR,
     'fatal': log4js_1.default.levels.FATAL,
 };
-log4js_1.default.configure({
+(0, config_1.getConfig)().app.enableLog && log4js_1.default.configure({
     appenders: {
         console: {
             type: 'console'

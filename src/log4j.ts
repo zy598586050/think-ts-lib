@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-11-13 19:47:22
- * @LastEditTime: 2023-11-14 12:15:08
+ * @LastEditTime: 2023-12-08 11:31:02
  */
 import log4js from 'log4js'
 import { getConfig } from './config'
@@ -17,7 +17,7 @@ const levels: any = {
 
 type LEVELS = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'
 
-log4js.configure({
+getConfig().app.enableLog && log4js.configure({
     appenders: {
         console: {
             type: 'console'

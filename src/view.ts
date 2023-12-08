@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-28 16:59:04
- * @LastEditTime: 2023-11-15 12:18:01
+ * @LastEditTime: 2023-12-06 14:30:47
  */
 import { createSSRApp } from 'vue'
 import { parse } from '@vue/compiler-sfc'
@@ -35,7 +35,7 @@ export const createApp = (data: Object, template: string, obj: VUETYPE) => {
         template
     })
 }
-
+let s = ''
 /**
  * 最终渲染的html
  * @param style 样式
@@ -50,6 +50,7 @@ export const htmlView = (style: string, ssr: string, data: Object, template: str
         // 插入样式
         const regStyle = /(<head>)([\s\S]*?)(<\/head>)/i
         html = html.replace(regStyle, `$1$2<style>${style}</style>$3`)
+        s = ''
         // 插入vue服务端渲染代码
         const regSSR = /(<div id="app">)([\s\S]*?)(<\/div>)/i
         html = html.replace(regSSR, `$1$2${ssr}$3`)
@@ -89,7 +90,7 @@ const vueObjToString = (vueObj: any) => {
         return `template: \`${str}\`,`
     }
     const stringifyComponents = (components: any): string => {
-        return components ? `components: {${Object.keys(components || {}).map(key => `${key}: ${vueObjToString(components[key])}`).join(',')}},` : ''
+        return components ? `components: {${Object.keys(components || {}).map(key => `${key}: ${components[key]}`).join(',')}},` : ''
     }
     const stringifyFunction = (obj: any) => {
         return Object.keys(obj || {}).filter(key => typeof obj[key] === 'function').map(key => obj[key].toString()).join(',')
@@ -125,10 +126,10 @@ const vueObjToString = (vueObj: any) => {
 export const importVue = (url: string) => {
     let vueCode = ''
     let template = ''
-    let style = ''
     let vueObj: any = {}
+    url = url.startsWith('/') ? url : `/${url}`
     try {
-        const viewPath = path.resolve(process.cwd(), `${getConfig().app.view_path}/${url}${url.endsWith('.vue') ? '' : '.vue'}`)
+        const viewPath = path.resolve(process.cwd(), `${getConfig().app.view_path}${url}${url.endsWith('.vue') ? '' : '.vue'}`)
         vueCode = fs.readFileSync(viewPath, 'utf-8')
     } catch (error) {
         console.log(error)
@@ -141,7 +142,7 @@ export const importVue = (url: string) => {
     try {
         const { descriptor } = parse(vueCode)
         template = descriptor?.template?.content || ''
-        style = descriptor.styles.map(v => v.content).join()
+        s += descriptor.styles.map(v => v.content).join()
         const codeString = descriptor?.script?.content || ''
         const objStr = codeString.split('export default')
         if (objStr?.[1]) {
@@ -167,7 +168,7 @@ export const importVue = (url: string) => {
     }
     return {
         template,
-        style,
+        style: s,
         vueObj
     }
 }

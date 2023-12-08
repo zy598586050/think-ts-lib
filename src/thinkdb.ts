@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-11-15 10:45:17
- * @LastEditTime: 2023-11-23 17:59:12
+ * @LastEditTime: 2023-12-07 20:18:49
  */
 import { createPool, Pool, format, PoolConnection } from 'mysql2/promise'
 import { getConfig } from './config'
@@ -379,11 +379,17 @@ export default class ThinkDb {
      * @param num 步减 默认步减为1
      * @options 设置选项
      * ---------@param isShowSql 是否打印最终执行的SQL语句，默认不打印
+     * ---------@param isAutoTime 是否开启自动时间戳，默认不开启
+     * ---------@param updateTime 更新时间字段名，默认 update_time
      * ---------@param allProtect 全量更新保护，默认开启，防止忘记写WHERE条件误更新所有数据
      */
-    async decr(field: string, num: number = 1, options: { isShowSql?: boolean; allProtect?: boolean }) {
-        const { isShowSql, allProtect } = { isShowSql: false, allProtect: true, ...options }
-        const setStr = `${field} = ${field} - ${num}`
+    async decr(field: string, num: number = 1, options: { isShowSql?: boolean; isAutoTime?: boolean; updateTime?: string; allProtect?: boolean }) {
+        const { isShowSql, allProtect, isAutoTime, updateTime } = { isShowSql: false, isAutoTime: false, updateTime: 'update_time', allProtect: true, ...options }
+        const updateStr = isAutoTime ? `, ${updateTime} = ?` : ''
+        const setStr = `${field} = ${field} - ?${updateStr}`
+        const now = moment().format('YYYY-MM-DD HH:mm:ss')
+        isAutoTime && this.values.unshift(now)
+        this.values.unshift(num)
         this.lastSql = format(`UPDATE ${this.tableName} SET ${setStr} ${this.whereStr}`, this.values)
         if (allProtect && !this.lastSql.includes('WHERE')) {
             Log4j('警告：是否忘记增加WHERE条件，如果需要全量更新，请关闭全量更新保护', 'warn')
@@ -402,11 +408,17 @@ export default class ThinkDb {
      * @param num 步增 默认步增为1
      * @options 设置选项
      * ---------@param isShowSql 是否打印最终执行的SQL语句，默认不打印
+     * ---------@param isAutoTime 是否开启自动时间戳，默认不开启
+     * ---------@param updateTime 更新时间字段名，默认 update_time
      * ---------@param allProtect 全量更新保护，默认开启，防止忘记写WHERE条件误更新所有数据
      */
-    async incr(field: string, num: number = 1, options: { isShowSql?: boolean; allProtect?: boolean }) {
-        const { isShowSql, allProtect } = { isShowSql: false, allProtect: true, ...options }
-        const setStr = `${field} = ${field} + ${num}`
+    async incr(field: string, num: number = 1, options: { isShowSql?: boolean; isAutoTime?: boolean; updateTime?: string; allProtect?: boolean }) {
+        const { isShowSql, isAutoTime, updateTime, allProtect } = { isShowSql: false, isAutoTime: false, updateTime: 'update_time', allProtect: true, ...options }
+        const updateStr = isAutoTime ? `, ${updateTime} = ?` : ''
+        const setStr = `${field} = ${field} + ?${updateStr}`
+        const now = moment().format('YYYY-MM-DD HH:mm:ss')
+        isAutoTime && this.values.unshift(now)
+        this.values.unshift(num)
         this.lastSql = format(`UPDATE ${this.tableName} SET ${setStr} ${this.whereStr}`, this.values)
         if (allProtect && !this.lastSql.includes('WHERE')) {
             Log4j('警告：是否忘记增加WHERE条件，如果需要全量更新，请关闭全量更新保护', 'warn')
@@ -451,8 +463,8 @@ export default class ThinkDb {
     /**
      * 锁
      * @param lockStr 锁类型，默认FOR UPDATE
-     * 排它锁 FOR UPDATE
-     * 共享锁 LOCK IN SHARE MODE
+     * 排它锁 FOR UPDATE 用于写操作
+     * 共享锁 LOCK IN SHARE MODE 用于读操作
      * @returns 
      */
     lock(lockStr: string = 'FOR UPDATE') {

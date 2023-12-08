@@ -186,10 +186,14 @@ export default class ThinkDb {
      * @param num 步减 默认步减为1
      * @options 设置选项
      * ---------@param isShowSql 是否打印最终执行的SQL语句，默认不打印
+     * ---------@param isAutoTime 是否开启自动时间戳，默认不开启
+     * ---------@param updateTime 更新时间字段名，默认 update_time
      * ---------@param allProtect 全量更新保护，默认开启，防止忘记写WHERE条件误更新所有数据
      */
     decr(field: string, num: number | undefined, options: {
         isShowSql?: boolean;
+        isAutoTime?: boolean;
+        updateTime?: string;
         allProtect?: boolean;
     }): Promise<any>;
     /**
@@ -198,10 +202,14 @@ export default class ThinkDb {
      * @param num 步增 默认步增为1
      * @options 设置选项
      * ---------@param isShowSql 是否打印最终执行的SQL语句，默认不打印
+     * ---------@param isAutoTime 是否开启自动时间戳，默认不开启
+     * ---------@param updateTime 更新时间字段名，默认 update_time
      * ---------@param allProtect 全量更新保护，默认开启，防止忘记写WHERE条件误更新所有数据
      */
     incr(field: string, num: number | undefined, options: {
         isShowSql?: boolean;
+        isAutoTime?: boolean;
+        updateTime?: string;
         allProtect?: boolean;
     }): Promise<any>;
     /**
@@ -225,8 +233,8 @@ export default class ThinkDb {
     /**
      * 锁
      * @param lockStr 锁类型，默认FOR UPDATE
-     * 排它锁 FOR UPDATE
-     * 共享锁 LOCK IN SHARE MODE
+     * 排它锁 FOR UPDATE 用于写操作
+     * 共享锁 LOCK IN SHARE MODE 用于读操作
      * @returns
      */
     lock(lockStr?: string): this;
