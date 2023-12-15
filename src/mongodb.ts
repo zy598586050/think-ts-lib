@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-11-21 18:18:15
- * @LastEditTime: 2023-11-22 12:23:49
+ * @LastEditTime: 2023-12-12 17:37:38
  */
 import mongoose, { Schema } from 'mongoose'
 import { getConfig } from './config'
@@ -25,7 +25,7 @@ export default class MongoDb {
         this.modelName = modelName
         this.mongodbConfig = getConfig()?.mongodb || {}
         Object.keys(this.mongodbConfig).forEach((key, index) => {
-            if (index === 0) db = key
+            if (index === 0 && !db) db = key
         })
         mongoose.connect(`mongodb://${this.mongodbConfig[db].user}:${this.mongodbConfig[db].password}@${this.mongodbConfig[db].host}:${this.mongodbConfig[db].port}/${this.mongodbConfig[db].database}`)
     }

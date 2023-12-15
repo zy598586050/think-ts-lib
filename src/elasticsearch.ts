@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-11-21 11:43:33
- * @LastEditTime: 2023-11-21 14:27:30
+ * @LastEditTime: 2023-12-14 18:19:28
  */
 import { Client } from '@elastic/elasticsearch'
 import { getConfig } from './config'
@@ -21,7 +21,7 @@ export default class ElasticSearch {
     constructor(db: string = '') {
         this.elasticSearchConfig = getConfig()?.elasticsearch || {}
         Object.keys(this.elasticSearchConfig).forEach((key, index) => {
-            if (index === 0) db = key
+            if (index === 0 && !db) db = key
         })
         this.client = new Client({
             node: `http://${this.elasticSearchConfig[db].host}:${this.elasticSearchConfig[db].prot}`
@@ -34,7 +34,7 @@ export default class ElasticSearch {
      * @param body 结构
      * @returns 
      */
-    createIndex(index: string, body: DBOBJECT) {
+    createIndex(index: string, body?: DBOBJECT) {
         return this.client?.indices.create({ index, body })
     }
 

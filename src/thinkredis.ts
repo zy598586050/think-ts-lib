@@ -1,8 +1,3 @@
-/*
- * @Author: zhangyu
- * @Date: 2023-11-21 14:30:29
- * @LastEditTime: 2023-11-30 15:37:02
- */
 import redis from 'ioredis'
 import { getConfig } from './config'
 
@@ -23,7 +18,7 @@ export default class ThinkRedis {
     constructor(db: string = '') {
         this.redisConfig = getConfig()?.redis || {}
         Object.keys(this.redisConfig).forEach((key, index) => {
-            if (index === 0) db = key
+            if (index === 0 && !db) db = key
         })
         this.db = db
         this.client = new redis({
@@ -77,6 +72,7 @@ export default class ThinkRedis {
      * @param index 索引
      * @param value 键值对
      * @param timeout 过期时间
+     * @param callback 过期后的回调
      */
     hmset(index: string, value: DBOBJECT, timeout: number = 0, callback?: () => void) {
         if (callback) {

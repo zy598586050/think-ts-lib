@@ -1,8 +1,3 @@
-/*
- * @Author: zhangyu
- * @Date: 2023-11-15 10:45:17
- * @LastEditTime: 2023-12-07 20:18:49
- */
 import { createPool, Pool, format, PoolConnection } from 'mysql2/promise'
 import { getConfig } from './config'
 import Log4j from './log4j'
@@ -43,7 +38,7 @@ export default class ThinkDb {
         this.tableName = tableName
         this.mysqlConfig = getConfig()?.mysql || {}
         Object.keys(this.mysqlConfig).forEach((key, index) => {
-            if (index === 0) db = key
+            if (index === 0 && !db) db = key
         })
         this.pool = createPool({
             host: this.mysqlConfig[db].host,
