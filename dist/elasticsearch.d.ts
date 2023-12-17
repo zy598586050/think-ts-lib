@@ -12,7 +12,7 @@ export default class ElasticSearch {
      * @param body 结构
      * @returns
      */
-    createIndex(index: string, body: DBOBJECT): Promise<import("@elastic/elasticsearch/lib/api/types").IndicesCreateResponse> | undefined;
+    createIndex(index: string, body?: DBOBJECT): Promise<import("@elastic/elasticsearch/lib/api/types").IndicesCreateResponse> | undefined;
     /**
      * 添加文档
      * @param index 索引

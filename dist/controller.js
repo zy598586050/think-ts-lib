@@ -31,7 +31,7 @@ exports.MDb = exports.RDb = exports.EDb = exports.Db = exports.M = exports.View 
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-12-06 14:28:00
+ * @LastEditTime: 2023-12-17 16:50:36
  */
 const path_1 = __importDefault(require("path"));
 const exception_1 = require("./exception");
@@ -103,7 +103,7 @@ class Controller {
         }
         if (validate) {
             // 默认需要和控制器路径保持一致
-            const validatePath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.validate_path}${validate_path}${(validate_path || ctx.beforePath).endsWith('.ts') ? '' : '.ts'}`);
+            const validatePath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.validate_path}${validate_path}${validate_path.endsWith('.ts') ? '' : '.ts'}`);
             Promise.resolve(`${validatePath}`).then(s => __importStar(require(s))).then((module) => {
                 const validateObj = module.default;
                 Object.keys(validateObj?.rule || {}).forEach(key => {

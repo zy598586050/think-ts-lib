@@ -57,9 +57,9 @@ export default class ThinkDb {
      * @param value 值
      * @returns 
      */
-    where(field: string, condition: CONDITION, value: string | number) {
+    where(field: string, condition: CONDITION, value?: string | number) {
         this.whereStr = `WHERE ${field} ${arguments.length === 2 ? '=' : condition} ? `
-        this.values.push(arguments.length === 2 ? condition : value)
+        this.values.push(arguments.length === 2 ? condition : value as string | number)
         return this
     }
 
@@ -72,7 +72,7 @@ export default class ThinkDb {
      */
     whereAnd(field: string, condition: CONDITION, value: string | number) {
         this.whereStr += `AND ${field} ${arguments.length === 2 ? '=' : condition} ? `
-        this.values.push(arguments.length === 2 ? condition : value)
+        this.values.push(arguments.length === 2 ? condition : value as string | number)
         return this
     }
 
@@ -85,7 +85,7 @@ export default class ThinkDb {
      */
     whereOr(field: string, condition: CONDITION, value: string | number) {
         this.whereStr += `OR ${field} ${arguments.length === 2 ? '=' : condition} ? `
-        this.values.push(arguments.length === 2 ? condition : value)
+        this.values.push(arguments.length === 2 ? condition : value as string | number)
         return this
     }
 

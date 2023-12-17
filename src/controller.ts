@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-12-06 14:28:00
+ * @LastEditTime: 2023-12-17 16:50:36
  */
 import path from 'path'
 import { Context } from 'koa'
@@ -16,7 +16,7 @@ import ThinkEDb from './elasticsearch'
 import ThinkRDb from './thinkredis'
 import ThinkMDb from './mongodb'
 
-type VueType = 'vue' | 'react'
+type TMPType = 'vue' | 'react'
 
 export class Controller {
     /**
@@ -81,7 +81,7 @@ export class Controller {
 
         if (validate) {
             // 默认需要和控制器路径保持一致
-            const validatePath = path.resolve(process.cwd(), `${getConfig().app.validate_path}${validate_path}${(validate_path || ctx.beforePath).endsWith('.ts') ? '' : '.ts'}`)
+            const validatePath = path.resolve(process.cwd(), `${getConfig().app.validate_path}${validate_path}${validate_path.endsWith('.ts') ? '' : '.ts'}`)
             import(validatePath).then((module) => {
                 const validateObj = module.default
                 Object.keys(validateObj?.rule || {}).forEach(key => {
@@ -112,7 +112,7 @@ export class Controller {
      * @param type 模板引擎的类型，默认是vue, 可以指定为react
      * @returns 
      */
-    async View(url: string, data: Object = {}, type: VueType = 'vue') {
+    async View(url: string, data: Object = {}, type: TMPType = 'vue') {
         if (type === 'vue') {
             let body = ''
             try {
@@ -138,7 +138,7 @@ export class Controller {
      * 调用模型
      * @param modelPath 模型路径
      */
-    async M(modelPath: string) {
+    async M(modelPath: string): Promise<any> {
         let model = null
         modelPath = modelPath.startsWith('/') ? modelPath : `/${modelPath}`
         const modelDir = path.resolve(process.cwd(), `${getConfig().app.model_path}${modelPath}${modelPath.endsWith('.ts') ? '' : '.ts'}`)

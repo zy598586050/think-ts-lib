@@ -26,7 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * @Author: zhangyu
  * @Date: 2023-11-21 18:18:15
- * @LastEditTime: 2023-11-22 12:23:49
+ * @LastEditTime: 2023-12-12 17:37:38
  */
 const mongoose_1 = __importStar(require("mongoose"));
 const config_1 = require("./config");
@@ -43,7 +43,7 @@ class MongoDb {
         this.modelName = modelName;
         this.mongodbConfig = (0, config_1.getConfig)()?.mongodb || {};
         Object.keys(this.mongodbConfig).forEach((key, index) => {
-            if (index === 0)
+            if (index === 0 && !db)
                 db = key;
         });
         mongoose_1.default.connect(`mongodb://${this.mongodbConfig[db].user}:${this.mongodbConfig[db].password}@${this.mongodbConfig[db].host}:${this.mongodbConfig[db].port}/${this.mongodbConfig[db].database}`);

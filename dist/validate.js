@@ -17,26 +17,23 @@ const rule = {
     },
     // 邮箱校验
     email: (ctx, key, value, message) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value))
+        if (!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)))
             HttpException(ctx, message || `${key}邮箱格式不正确`, errorcode_1.ErrorCode.ERROR_VALIDATE, 400);
     },
     // 手机号校验
     phone: (ctx, key, value, message) => {
-        const phoneRegex = /^[1][3,4,5,7,8][0-9]{9}$/;
-        if (!phoneRegex.test(value))
+        if (!(/^[1][3,4,5,7,8][0-9]{9}$/.test(value)))
             HttpException(ctx, message || `${key}手机号格式不正确`, errorcode_1.ErrorCode.ERROR_VALIDATE, 400);
     },
     // 身份证验证
     idCard: (ctx, key, value, message) => {
-        const pattern = /^[1-9]\d{5}(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}([0-9]|X)$/;
-        if (pattern.test(value))
+        if (!(/^[1-9]\d{5}(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}([0-9]|X)$/.test(value)))
             HttpException(ctx, message || `${key}身份证格式不正确`, errorcode_1.ErrorCode.ERROR_VALIDATE, 400);
     },
-    // 整形数字类型校验
+    // 正整形数字类型校验
     number: (ctx, key, value, message) => {
-        if (!(typeof value === 'number' && Number.isInteger(value)))
-            HttpException(ctx, message || `${key}必须为整数类型`, errorcode_1.ErrorCode.ERROR_VALIDATE, 400);
+        if (!(/^\d+$/.test(value) && parseInt(value, 10) > 0))
+            HttpException(ctx, message || `${key}必须为正整数类型`, errorcode_1.ErrorCode.ERROR_VALIDATE, 400);
     },
     // 验证某个字段的值是否在某个范围
     in: (ctx, key, value, message) => {
@@ -71,15 +68,15 @@ const Validate = (ctx, key, params, validateObj) => {
         }, params);
     }
     else if (typeof validateObj.rule[key] === 'string') {
-        validateObj.rule[key].split('|').forEach((k) => {
-            k = k.replace(/\s+/g, ' ').trim();
+        validateObj.rule[key].split('|').reverse().forEach((k) => {
+            k = k.replace(/\s/g, '');
             if (k.includes(':')) {
+                ctx.vk = k.split(':')[0];
+                ctx.vv = validateObj.rule.hasOwnProperty(k.split(':')[1]) ? params[k.split(':')[1]] : k.split(':')[1].split(',');
                 k = k.split(':')[0];
-                ctx.vk = k.split(':')[1];
-                ctx.vv = params[k.split(':')[1]];
             }
             if (rule.hasOwnProperty(k)) {
-                rule[k](ctx, key, params?.[key], validateObj?.message?.[validateObj?.message?.includes(`${key}.`) ? `${key}.${k}` : key]);
+                rule[k](ctx, key, params?.[key], validateObj?.message?.[validateObj?.message?.hasOwnProperty(`${key}.${k}`) ? `${key}.${k}` : key]);
             }
             else {
                 HttpException(ctx, `验证规则${k}为空或不存在`, errorcode_1.ErrorCode.ERROR_VALIDATE, 400);

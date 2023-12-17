@@ -3,11 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * @Author: zhangyu
- * @Date: 2023-11-15 10:45:17
- * @LastEditTime: 2023-12-07 20:18:49
- */
 const promise_1 = require("mysql2/promise");
 const config_1 = require("./config");
 const log4j_1 = __importDefault(require("./log4j"));
@@ -38,7 +33,7 @@ class ThinkDb {
         this.tableName = tableName;
         this.mysqlConfig = (0, config_1.getConfig)()?.mysql || {};
         Object.keys(this.mysqlConfig).forEach((key, index) => {
-            if (index === 0)
+            if (index === 0 && !db)
                 db = key;
         });
         this.pool = (0, promise_1.createPool)({
