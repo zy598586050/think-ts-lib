@@ -16,7 +16,7 @@ export default class ThinkDb {
     joinStr: string;
     lockStr: string;
     lastSql: string;
-    constructor(tableName?: string, db?: string);
+    constructor(tableName?: string, db?: string, connection?: PoolConnection);
     /**
      * 单条件查询
      * @param field 字段名
@@ -242,7 +242,7 @@ export default class ThinkDb {
      * 事务
      * @param fn 回调函数
      */
-    beginTransaction(fn: (tdb: ThinkDb) => Promise<void>): Promise<void>;
+    beginTransaction(fn: (TDb: any) => Promise<void>): Promise<void>;
     /**
      * 自定义SQL语句查询
      * @param sql 查询语句，防止注入请用?占位

@@ -34,8 +34,9 @@ export default class ThinkDb {
     lastSql: string = ''
 
     // 构造函数初始化
-    constructor(tableName: string = '', db: string = '') {
+    constructor(tableName: string = '', db: string = '', connection?: PoolConnection) {
         this.tableName = tableName
+        this.connection = connection
         this.mysqlConfig = getConfig()?.mysql || {}
         Object.keys(this.mysqlConfig).forEach((key, index) => {
             if (index === 0 && !db) db = key
@@ -471,13 +472,13 @@ export default class ThinkDb {
      * 事务
      * @param fn 回调函数
      */
-    async beginTransaction(fn: (tdb: ThinkDb) => Promise<void>) {
+    async beginTransaction(fn: (TDb: any) => Promise<void>) {
         this.connection = await this.pool.getConnection()
         try {
             this.connection.beginTransaction()
-            const TDb = new ThinkDb()
-            TDb.connection = this.connection
-            await fn(TDb)
+            await fn((tableName?: string, db?: string) => {
+                return new ThinkDb(tableName, db, this.connection)
+            })
             await this.connection.commit()
         } catch (error) {
             console.log('事务回滚', error)

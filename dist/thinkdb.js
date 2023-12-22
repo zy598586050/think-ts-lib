@@ -29,8 +29,9 @@ class ThinkDb {
     // 最后执行的查询语句
     lastSql = '';
     // 构造函数初始化
-    constructor(tableName = '', db = '') {
+    constructor(tableName = '', db = '', connection) {
         this.tableName = tableName;
+        this.connection = connection;
         this.mysqlConfig = (0, config_1.getConfig)()?.mysql || {};
         Object.keys(this.mysqlConfig).forEach((key, index) => {
             if (index === 0 && !db)
@@ -457,9 +458,9 @@ class ThinkDb {
         this.connection = await this.pool.getConnection();
         try {
             this.connection.beginTransaction();
-            const TDb = new ThinkDb();
-            TDb.connection = this.connection;
-            await fn(TDb);
+            await fn((tableName, db) => {
+                return new ThinkDb(tableName, db, this.connection);
+            });
             await this.connection.commit();
         }
         catch (error) {
