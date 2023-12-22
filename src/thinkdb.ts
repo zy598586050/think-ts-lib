@@ -468,24 +468,16 @@ export default class ThinkDb {
     }
 
     /**
-     * 传递事务的连接对象
-     * @param connection 事务连接对象
-     * @returns 
-     */
-    T(connection: PoolConnection) {
-        this.connection = connection
-        return this
-    }
-
-    /**
      * 事务
      * @param fn 回调函数
      */
-    async beginTransaction(fn: (connection: PoolConnection) => Promise<void>) {
+    async beginTransaction(fn: (tdb: ThinkDb) => Promise<void>) {
+        this.connection = await this.pool.getConnection()
         try {
-            this.connection = await this.pool.getConnection()
             this.connection.beginTransaction()
-            await fn(this.connection)
+            const TDb = new ThinkDb()
+            TDb.connection = this.connection
+            await fn(TDb)
             await this.connection.commit()
         } catch (error) {
             console.log('事务回滚', error)

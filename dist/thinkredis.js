@@ -3,11 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * @Author: zhangyu
- * @Date: 2023-11-21 14:30:29
- * @LastEditTime: 2023-11-30 15:37:02
- */
 const ioredis_1 = __importDefault(require("ioredis"));
 const config_1 = require("./config");
 class ThinkRedis {
@@ -21,7 +16,7 @@ class ThinkRedis {
     constructor(db = '') {
         this.redisConfig = (0, config_1.getConfig)()?.redis || {};
         Object.keys(this.redisConfig).forEach((key, index) => {
-            if (index === 0)
+            if (index === 0 && !db)
                 db = key;
         });
         this.db = db;
@@ -73,6 +68,7 @@ class ThinkRedis {
      * @param index 索引
      * @param value 键值对
      * @param timeout 过期时间
+     * @param callback 过期后的回调
      */
     hmset(index, value, timeout = 0, callback) {
         if (callback) {

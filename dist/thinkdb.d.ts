@@ -239,16 +239,10 @@ export default class ThinkDb {
      */
     lock(lockStr?: string): this;
     /**
-     * 传递事务的连接对象
-     * @param connection 事务连接对象
-     * @returns
-     */
-    T(connection: PoolConnection): this;
-    /**
      * 事务
      * @param fn 回调函数
      */
-    beginTransaction(fn: (connection: PoolConnection) => Promise<void>): Promise<void>;
+    beginTransaction(fn: (tdb: ThinkDb) => Promise<void>): Promise<void>;
     /**
      * 自定义SQL语句查询
      * @param sql 查询语句，防止注入请用?占位
