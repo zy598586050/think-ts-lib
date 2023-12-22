@@ -24,7 +24,7 @@ export default class ThinkDb {
      * @param value 值
      * @returns
      */
-    where(field: string, condition: CONDITION, value: string | number): this;
+    where(field: string, condition: CONDITION, value?: string | number): this;
     /**
      * 多条件查询AND，前边必须要有where的调用
      * @param field 字段名

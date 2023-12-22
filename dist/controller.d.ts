@@ -4,7 +4,7 @@ import ThinkDb from './thinkdb';
 import ThinkEDb from './elasticsearch';
 import ThinkRDb from './thinkredis';
 import ThinkMDb from './mongodb';
-type VueType = 'vue' | 'react';
+type TMPType = 'vue' | 'react';
 export declare class Controller {
     /**
      * 返回成功的Json数据
@@ -43,7 +43,7 @@ export declare class Controller {
      * @param type 模板引擎的类型，默认是vue, 可以指定为react
      * @returns
      */
-    View(url: string, data?: Object, type?: VueType): Promise<{
+    View(url: string, data?: Object, type?: TMPType): Promise<{
         body: string;
         status: number;
     } | undefined>;
@@ -86,7 +86,7 @@ export declare const ShowSuccess: (data?: any, msg?: string, code?: number, stat
         data: any;
     };
     status: number;
-}, ApiException: (msg?: string, errorCode?: number, statusCode?: number) => void, GetParams: (ctx: Context, validate?: boolean, validate_path?: string) => any, View: (url: string, data?: Object, type?: VueType) => Promise<{
+}, ApiException: (msg?: string, errorCode?: number, statusCode?: number) => void, GetParams: (ctx: Context, validate?: boolean, validate_path?: string) => any, View: (url: string, data?: Object, type?: TMPType) => Promise<{
     body: string;
     status: number;
 } | undefined>, M: (modelPath: string) => Promise<any>, Db: (tableName?: string, db?: string) => ThinkDb, EDb: (db?: string) => ThinkEDb, RDb: (db?: string) => ThinkRDb, MDb: (modelName: string, db?: string) => ThinkMDb;
