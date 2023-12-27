@@ -1,16 +1,15 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-12-17 16:50:36
+ * @LastEditTime: 2023-12-27 18:52:45
  */
 import path from 'path'
 import { Context } from 'koa'
 import { HttpException } from './exception'
 import { getConfig } from './config'
 import { ErrorCode } from './errorcode'
-import { renderToString } from 'vue/server-renderer'
-import { createApp, importVue, htmlView } from './view'
 import { Validate } from './validate'
+import { vueRenderToString } from './view'
 import ThinkDb from './thinkdb'
 import ThinkEDb from './elasticsearch'
 import ThinkRDb from './thinkredis'
@@ -116,10 +115,7 @@ export class Controller {
         if (type === 'vue') {
             let body = ''
             try {
-                const { style, template, vueObj } = importVue(url)
-                const app = createApp(data, template, vueObj)
-                body = await renderToString(app)
-                body = htmlView(style, body, data, template, vueObj)
+                body = await vueRenderToString(url, data)
             } catch (error) {
                 console.log(error)
                 throw new HttpException({

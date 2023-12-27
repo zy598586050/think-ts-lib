@@ -18,10 +18,10 @@ Object.defineProperty(exports, "Db", { enumerable: true, get: function () { retu
 Object.defineProperty(exports, "EDb", { enumerable: true, get: function () { return controller_1.EDb; } });
 Object.defineProperty(exports, "RDb", { enumerable: true, get: function () { return controller_1.RDb; } });
 Object.defineProperty(exports, "MDb", { enumerable: true, get: function () { return controller_1.MDb; } });
-const log4j_1 = __importDefault(require("./log4j"));
-exports.Log4j = log4j_1.default;
 const utils_1 = require("./utils");
 Object.defineProperty(exports, "Utils", { enumerable: true, get: function () { return utils_1.Utils; } });
+const log4j_1 = __importDefault(require("./log4j"));
+exports.Log4j = log4j_1.default;
 exports.default = {
     start: start_1.default,
     appConfig: config_1.getConfig,

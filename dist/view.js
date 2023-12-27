@@ -3,175 +3,74 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.importVue = exports.htmlView = exports.createApp = void 0;
+exports.vueRenderToString = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-28 16:59:04
- * @LastEditTime: 2023-12-06 14:30:47
+ * @LastEditTime: 2023-12-27 20:15:29
  */
-const vue_1 = require("vue");
-const compiler_sfc_1 = require("@vue/compiler-sfc");
-const exception_1 = require("./exception");
-const config_1 = require("./config");
-const errorcode_1 = require("./errorcode");
-const lodash_1 = require("lodash");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-const util_1 = __importDefault(require("util"));
+const server_renderer_1 = require("@vue/server-renderer");
+const vue_1 = require("vue");
+const config_1 = require("./config");
+const utils_1 = require("./utils");
+const vite_1 = require("vite");
+const compiler_sfc_1 = require("@vue/compiler-sfc");
+let viteInstance;
 /**
- * 同构实例
- * @param data 根组件数据
- * @param template 模板字符串
- * @param obj 对象
+ * .vue 文件转 html
+ * @param url .vue文件路径
  * @returns
  */
-const createApp = (data, template, obj) => {
-    return (0, vue_1.createSSRApp)({
-        ...obj,
-        data() {
-            return (0, lodash_1.merge)(data, obj?.data() || {});
-        },
-        template
-    });
-};
-exports.createApp = createApp;
-let s = '';
-/**
- * 最终渲染的html
- * @param style 样式
- * @param ssr vue服务端渲染
- * @returns
- */
-const htmlView = (style, ssr, data, template, obj) => {
-    let html = '';
-    try {
-        const htmlPath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.static_path}/index.html`);
-        html = fs_1.default.readFileSync(htmlPath, 'utf-8');
-        // 插入样式
-        const regStyle = /(<head>)([\s\S]*?)(<\/head>)/i;
-        html = html.replace(regStyle, `$1$2<style>${style}</style>$3`);
-        s = '';
-        // 插入vue服务端渲染代码
-        const regSSR = /(<div id="app">)([\s\S]*?)(<\/div>)/i;
-        html = html.replace(regSSR, `$1$2${ssr}$3`);
-        // 插入同构代码
-        const regScript = /(<body>)([\s\S]*?)(<\/body>)/i;
-        const vueObj = {
-            ...obj,
-            data() {
-                return (0, lodash_1.merge)(data, obj?.data() || {});
-            },
-            template
-        };
-        const scriptStr = `
-        <script type="module">
-        import { createSSRApp } from 'vue'
-        createSSRApp(${vueObjToString(vueObj)}).mount('#app')
-        </script>
-        `;
-        html = html.replace(regScript, `$1$2${scriptStr}$3`);
-    }
-    catch (error) {
-        console.log(error);
-        throw new exception_1.HttpException({
-            msg: '视图模板index.html文件解析错误',
-            errorCode: errorcode_1.ErrorCode.ERROR_VIEW,
-            statusCode: 404
+const vueRenderToString = async (url, data) => {
+    // 单例开启一个服务
+    if (!viteInstance) {
+        viteInstance = await (0, vite_1.createServer)({
+            server: { middlewareMode: true },
+            appType: 'custom'
         });
     }
+    // 加载vue文件
+    const htmlPath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.static_path}/index.html`);
+    let html = fs_1.default.readFileSync(htmlPath, 'utf-8');
+    url = url.startsWith('/') ? url : `/${url}`;
+    const vuePath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.view_path}${url}${url.endsWith('.vue') ? '' : '.vue'}`);
+    const { default: App } = await viteInstance.ssrLoadModule(vuePath);
+    const app = (0, vue_1.createSSRApp)(App, { ssrData: data });
+    const ctx = {};
+    const appContent = await (0, server_renderer_1.renderToString)(app, ctx);
+    let style = ''; // 样式收集
+    // 解析vue
+    const module = new Set(ctx.modules);
+    module.forEach((vueUrl) => {
+        vueUrl = path_1.default.resolve(process.cwd(), vueUrl);
+        const vueFile = fs_1.default.readFileSync(vueUrl, 'utf-8');
+        const { descriptor } = (0, compiler_sfc_1.parse)(vueFile, { filename: vueUrl });
+        const { styles } = descriptor;
+        // 为了方便修改scoped的标识符，采用这种方式渲染css, 如果解决了标识符不一致的问题，可不用这种方式渲染
+        const id = `data-v-${utils_1.Utils.sha1(descriptor.filename)}`;
+        styles.forEach((styleItem) => {
+            const compiledStyle = (0, compiler_sfc_1.compileStyle)({
+                filename: descriptor.filename,
+                source: styleItem.content,
+                id,
+                scoped: styleItem.scoped,
+                preprocessLang: styleItem.lang || 'scss',
+                preprocessOptions: {
+                    outputStyle: 'compressed'
+                }
+            });
+            style += compiledStyle.code;
+        });
+    });
+    // 绑定结构
+    html = html.replace(`<!--ssr-outlet-->`, appContent);
+    // 绑定样式
+    html = html.replace(`<!--ssr-style-->`, `<style>${style}</style>`);
+    // html = html.replace(`<!--ssr-style-->`, `<link rel="stylesheet" crossorigin href="./css${url.replace('.vue', '')}.css">`)
+    // 绑定同构代码
+    html = html.replace(`<!--ssr-script-->`, `<script type="module" crossorigin src="./js${url.replace('.vue', '')}.js"></script>`);
     return html;
 };
-exports.htmlView = htmlView;
-// vue对象转字符串代码
-const vueObjToString = (vueObj) => {
-    const stringifyData = (data) => {
-        return data ? `data() { return ${util_1.default.inspect(data)} },` : '';
-    };
-    const stringifyTemplate = (str) => {
-        return `template: \`${str}\`,`;
-    };
-    const stringifyComponents = (components) => {
-        return components ? `components: {${Object.keys(components || {}).map(key => `${key}: ${components[key]}`).join(',')}},` : '';
-    };
-    const stringifyFunction = (obj) => {
-        return Object.keys(obj || {}).filter(key => typeof obj[key] === 'function').map(key => obj[key].toString()).join(',');
-    };
-    const stringifyMethods = (methods) => {
-        return methods ? `methods: {${stringifyFunction(methods)}},` : '';
-    };
-    const stringifyWatch = (watch) => {
-        return watch ? `watch: {${stringifyFunction(watch)}},` : '';
-    };
-    const stringifyComputed = (computed) => {
-        return computed ? `computed: {${stringifyFunction(computed)}},` : '';
-    };
-    const stringifyProps = (props) => {
-        return props ? `props: ${util_1.default.inspect(vueObj.props || {})}` : '';
-    };
-    return `{
-        ${stringifyData(vueObj.data())}
-        ${stringifyTemplate(vueObj.template)}
-        ${stringifyComponents(vueObj?.components)}
-        ${stringifyMethods(vueObj?.methods)}
-        ${stringifyWatch(vueObj?.watch)}
-        ${stringifyComputed(vueObj?.computed)}
-        ${stringifyProps(vueObj?.props)}
-    }`;
-};
-/**
- * 解析.vue文件
- * @param url
- * @returns
- */
-const importVue = (url) => {
-    let vueCode = '';
-    let template = '';
-    let vueObj = {};
-    url = url.startsWith('/') ? url : `/${url}`;
-    try {
-        const viewPath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.view_path}${url}${url.endsWith('.vue') ? '' : '.vue'}`);
-        vueCode = fs_1.default.readFileSync(viewPath, 'utf-8');
-    }
-    catch (error) {
-        console.log(error);
-        throw new exception_1.HttpException({
-            msg: '找不到视图文件',
-            errorCode: errorcode_1.ErrorCode.ERROR_VIEW,
-            statusCode: 404
-        });
-    }
-    try {
-        const { descriptor } = (0, compiler_sfc_1.parse)(vueCode);
-        template = descriptor?.template?.content || '';
-        s += descriptor.styles.map(v => v.content).join();
-        const codeString = descriptor?.script?.content || '';
-        const objStr = codeString.split('export default');
-        if (objStr?.[1]) {
-            const code = `(${objStr?.[1]?.replace(/\r\n/g, '') || ''})`;
-            vueObj = new Function(`return ${code}`)() || {};
-            if (vueObj?.components) {
-                Object.keys(vueObj?.components || {}).forEach(key => {
-                    const iv = (0, exports.importVue)(vueObj?.components?.[key]);
-                    vueObj.components[key] = {
-                        template: iv.template,
-                        ...iv.vueObj
-                    };
-                });
-            }
-        }
-    }
-    catch (error) {
-        console.log(error);
-        throw new exception_1.HttpException({
-            msg: '视图文件解析错误',
-            errorCode: errorcode_1.ErrorCode.ERROR_VIEW,
-            statusCode: 404
-        });
-    }
-    return {
-        template,
-        style: s,
-        vueObj
-    };
-};
-exports.importVue = importVue;
+exports.vueRenderToString = vueRenderToString;

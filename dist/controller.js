@@ -31,15 +31,14 @@ exports.MDb = exports.RDb = exports.EDb = exports.Db = exports.M = exports.View 
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-12-17 16:50:36
+ * @LastEditTime: 2023-12-27 18:52:45
  */
 const path_1 = __importDefault(require("path"));
 const exception_1 = require("./exception");
 const config_1 = require("./config");
 const errorcode_1 = require("./errorcode");
-const server_renderer_1 = require("vue/server-renderer");
-const view_1 = require("./view");
 const validate_1 = require("./validate");
+const view_1 = require("./view");
 const thinkdb_1 = __importDefault(require("./thinkdb"));
 const elasticsearch_1 = __importDefault(require("./elasticsearch"));
 const thinkredis_1 = __importDefault(require("./thinkredis"));
@@ -137,10 +136,7 @@ class Controller {
         if (type === 'vue') {
             let body = '';
             try {
-                const { style, template, vueObj } = (0, view_1.importVue)(url);
-                const app = (0, view_1.createApp)(data, template, vueObj);
-                body = await (0, server_renderer_1.renderToString)(app);
-                body = (0, view_1.htmlView)(style, body, data, template, vueObj);
+                body = await (0, view_1.vueRenderToString)(url, data);
             }
             catch (error) {
                 console.log(error);
