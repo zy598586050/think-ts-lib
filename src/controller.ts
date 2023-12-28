@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-12-27 18:52:45
+ * @LastEditTime: 2023-12-28 15:43:11
  */
 import path from 'path'
 import { Context } from 'koa'
@@ -9,7 +9,7 @@ import { HttpException } from './exception'
 import { getConfig } from './config'
 import { ErrorCode } from './errorcode'
 import { Validate } from './validate'
-import { vueRenderToString } from './view'
+import { vueRenderToString, reactRenderToString } from './view'
 import ThinkDb from './thinkdb'
 import ThinkEDb from './elasticsearch'
 import ThinkRDb from './thinkredis'
@@ -126,7 +126,18 @@ export class Controller {
             }
             return { body, status: 200 }
         } else if (type === 'react') {
-            // TODO
+            let body = ''
+            try {
+                body = await reactRenderToString(url, data)
+            } catch (error) {
+                console.log(error)
+                throw new HttpException({
+                    msg: '视图文件解析失败',
+                    errorCode: ErrorCode.ERROR_VIEW,
+                    statusCode: 404
+                })
+            }
+            return { body, status: 200 }
         }
     }
 

@@ -3,11 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.vueRenderToString = void 0;
+exports.reactRenderToString = exports.vueRenderToString = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-28 16:59:04
- * @LastEditTime: 2023-12-27 20:15:29
+ * @LastEditTime: 2023-12-28 16:43:51
  */
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -17,6 +17,7 @@ const config_1 = require("./config");
 const utils_1 = require("./utils");
 const vite_1 = require("vite");
 const compiler_sfc_1 = require("@vue/compiler-sfc");
+const server_1 = require("react-dom/server");
 let viteInstance;
 /**
  * .vue 文件转 html
@@ -74,3 +75,28 @@ const vueRenderToString = async (url, data) => {
     return html;
 };
 exports.vueRenderToString = vueRenderToString;
+/**
+ * .jsx 文件转 html
+ * @param url .jsx文件路径
+ * @returns
+ */
+const reactRenderToString = async (url, data) => {
+    // 单例开启一个服务
+    if (!viteInstance) {
+        viteInstance = await (0, vite_1.createServer)({
+            server: { middlewareMode: true },
+            appType: 'custom'
+        });
+    }
+    // 加载react文件
+    const htmlPath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.static_path}/index.html`);
+    let html = fs_1.default.readFileSync(htmlPath, 'utf-8');
+    url = url.startsWith('/') ? url : `/${url}`;
+    const reactPath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.view_path}${url}${url.endsWith('.jsx') ? '' : '.jsx'}`);
+    const { default: App } = await viteInstance.ssrLoadModule(reactPath);
+    const appContent = (0, server_1.renderToString)(App);
+    html = html.replace(`<!--ssr-outlet-->`, appContent);
+    html = html.replace(`<!--ssr-outlet-->`, `<h2>待完善...</h2>`);
+    return html;
+};
+exports.reactRenderToString = reactRenderToString;

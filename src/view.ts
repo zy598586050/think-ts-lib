@@ -1,16 +1,17 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-10-28 16:59:04
- * @LastEditTime: 2023-12-27 20:15:29
+ * @LastEditTime: 2023-12-28 16:43:51
  */
 import fs from 'fs'
 import path from 'path'
-import { renderToString } from '@vue/server-renderer'
+import { renderToString as renderVueToString } from '@vue/server-renderer'
 import { createSSRApp } from 'vue'
 import { getConfig } from './config'
 import { Utils } from './utils'
 import { createServer } from 'vite'
 import { parse, compileStyle } from '@vue/compiler-sfc'
+import { renderToString as renderReactToString } from 'react-dom/server'
 
 let viteInstance: any
 
@@ -35,7 +36,7 @@ export const vueRenderToString = async (url: string, data: Object) => {
     const { default: App } = await viteInstance.ssrLoadModule(vuePath)
     const app = createSSRApp(App, { ssrData: data })
     const ctx: any = {}
-    const appContent = await renderToString(app, ctx)
+    const appContent = await renderVueToString(app, ctx)
     let style = '' // 样式收集
     // 解析vue
     const module = new Set(ctx.modules)
@@ -67,5 +68,30 @@ export const vueRenderToString = async (url: string, data: Object) => {
     // html = html.replace(`<!--ssr-style-->`, `<link rel="stylesheet" crossorigin href="./css${url.replace('.vue', '')}.css">`)
     // 绑定同构代码
     html = html.replace(`<!--ssr-script-->`, `<script type="module" crossorigin src="./js${url.replace('.vue', '')}.js"></script>`)
+    return html
+}
+
+/**
+ * .jsx 文件转 html
+ * @param url .jsx文件路径
+ * @returns 
+ */
+export const reactRenderToString = async (url: string, data: Object) => {
+    // 单例开启一个服务
+    if (!viteInstance) {
+        viteInstance = await createServer({
+            server: { middlewareMode: true },
+            appType: 'custom'
+        })
+    }
+    // 加载react文件
+    const htmlPath = path.resolve(process.cwd(), `${getConfig().app.static_path}/index.html`)
+    let html = fs.readFileSync(htmlPath, 'utf-8')
+    url = url.startsWith('/') ? url : `/${url}`
+    const reactPath = path.resolve(process.cwd(), `${getConfig().app.view_path}${url}${url.endsWith('.jsx') ? '' : '.jsx'}`)
+    const { default: App } = await viteInstance.ssrLoadModule(reactPath)
+    const appContent = renderReactToString(App)
+    html = html.replace(`<!--ssr-outlet-->`, appContent)
+    html = html.replace(`<!--ssr-outlet-->`, `<h2>待完善...</h2>`)
     return html
 }

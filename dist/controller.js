@@ -31,7 +31,7 @@ exports.MDb = exports.RDb = exports.EDb = exports.Db = exports.M = exports.View 
 /*
  * @Author: zhangyu
  * @Date: 2023-10-24 12:15:53
- * @LastEditTime: 2023-12-27 18:52:45
+ * @LastEditTime: 2023-12-28 15:43:11
  */
 const path_1 = __importDefault(require("path"));
 const exception_1 = require("./exception");
@@ -149,7 +149,19 @@ class Controller {
             return { body, status: 200 };
         }
         else if (type === 'react') {
-            // TODO
+            let body = '';
+            try {
+                body = await (0, view_1.reactRenderToString)(url, data);
+            }
+            catch (error) {
+                console.log(error);
+                throw new exception_1.HttpException({
+                    msg: '视图文件解析失败',
+                    errorCode: errorcode_1.ErrorCode.ERROR_VIEW,
+                    statusCode: 404
+                });
+            }
+            return { body, status: 200 };
         }
     }
     /**
