@@ -3,13 +3,13 @@
 </p>
 
 <p align="center">
-  <a href="http://www.think-ts.cn">
+  <a href="https://www.think-ts.cn">
     <img src="https://img.shields.io/badge/npm-v1.0.0-blue">
   </a>
-  <a href="http://www.think-ts.cn">
+  <a href="https://www.think-ts.cn">
     <img src="https://img.shields.io/badge/downloads-110k/month-green">
   </a>
-  <a href="http://www.think-ts.cn">
+  <a href="https://www.think-ts.cn">
     <img src="https://codecov.io/gh/element-plus/element-plus/branch/dev/graph/badge.svg?token=BKSBO2GLZI"/>
   </a>
   <br>
