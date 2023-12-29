@@ -1,4 +1,5 @@
 import alipay from 'alipay-sdk';
+import alipayFormData from 'alipay-sdk/lib/form';
 import oss from 'ali-oss';
 import moment from 'moment';
 interface WXPAY {
@@ -44,5 +45,6 @@ export declare let Utils: {
     AliPay({ appId, privateKey, encryptKey, alipayRootCertPath, alipayPublicCertPath, appCertPath }?: ALIPAY): alipay;
     SMS({ accessKeyId, secretAccessKey }?: SMSTYPE): any;
     OSS({ accessKeyId, accessKeySecret, region, bucket }?: OSSTYPE): oss;
+    AlipayFormData(): alipayFormData;
 };
 export {};

@@ -7,7 +7,7 @@ exports.reactRenderToString = exports.vueRenderToString = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-28 16:59:04
- * @LastEditTime: 2023-12-28 16:43:51
+ * @LastEditTime: 2023-12-28 17:55:02
  */
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));

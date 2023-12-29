@@ -30,7 +30,7 @@ exports.Utils = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-11-14 12:29:10
- * @LastEditTime: 2023-12-27 18:51:54
+ * @LastEditTime: 2023-12-29 11:26:13
  */
 const fs_1 = __importDefault(require("fs"));
 const ip_1 = __importDefault(require("ip"));
@@ -39,6 +39,7 @@ const crypto_1 = __importDefault(require("crypto"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const wxpay_v3_1 = __importDefault(require("wxpay-v3"));
 const alipay_sdk_1 = __importDefault(require("alipay-sdk"));
+const form_1 = __importDefault(require("alipay-sdk/lib/form"));
 const sms_sdk_1 = __importDefault(require("@alicloud/sms-sdk"));
 const ali_oss_1 = __importDefault(require("ali-oss"));
 const lodash_1 = require("lodash");
@@ -188,6 +189,10 @@ exports.Utils = {
             region: region ?? (0, config_1.getConfig)()?.alicloud?.region,
             bucket: bucket ?? (0, config_1.getConfig)()?.alicloud?.bucket
         });
+    },
+    // 阿里支付Form表单
+    AlipayFormData() {
+        return new form_1.default();
     }
 };
 // 加载扩展工具函数

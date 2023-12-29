@@ -1,7 +1,7 @@
 /*
  * @Author: zhangyu
  * @Date: 2023-11-14 12:29:10
- * @LastEditTime: 2023-12-27 18:51:54
+ * @LastEditTime: 2023-12-29 11:26:13
  */
 import fs from 'fs'
 import ip from 'ip'
@@ -10,6 +10,7 @@ import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import wxpay from 'wxpay-v3'
 import alipay from 'alipay-sdk'
+import alipayFormData from 'alipay-sdk/lib/form'
 import sms from '@alicloud/sms-sdk'
 import oss from 'ali-oss'
 import { merge } from 'lodash'
@@ -116,7 +117,7 @@ export let Utils = {
     // 生成手机验证码
     getValidateCode(num: number = 6) {
         let number = ''
-        for(let i = 0;i < num;i++){
+        for (let i = 0; i < num; i++) {
             number += Math.floor(Math.random() * 10)
         }
         return number
@@ -189,6 +190,10 @@ export let Utils = {
             region: region ?? getConfig()?.alicloud?.region,
             bucket: bucket ?? getConfig()?.alicloud?.bucket
         })
+    },
+    // 阿里支付Form表单
+    AlipayFormData() {
+        return new alipayFormData()
     }
 }
 
