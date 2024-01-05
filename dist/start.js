@@ -29,7 +29,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * @Author: zhangyu
  * @Date: 2023-10-17 15:43:32
- * @LastEditTime: 2023-12-27 11:59:24
+ * @LastEditTime: 2024-01-05 16:38:45
  */
 const path_1 = __importDefault(require("path"));
 const koa_1 = __importDefault(require("koa"));
@@ -56,10 +56,11 @@ exports.default = async (cfg = {}) => {
         .use(router_1.default.routes())
         .use(router_1.default.allowedMethods())
         .use((0, koa_static_1.default)(path_1.default.resolve(process.cwd(), mergeConfig?.app?.static_path)))
-        .listen(mergeConfig?.app?.port);
-    console.timeEnd('用时');
-    console.log(`Local: http://localhost:${mergeConfig?.app?.port}`);
-    console.log(`Network: http://${ip_1.default.address()}:${mergeConfig?.app?.port}`);
+        .listen(mergeConfig?.app?.port, () => {
+        console.timeEnd('用时');
+        console.log(`Local: http://localhost:${mergeConfig?.app?.port}`);
+        console.log(`Network: http://${ip_1.default.address()}:${mergeConfig?.app?.port}`);
+    });
     // websocket
     if (mergeConfig?.ws?.enable) {
         const wsDir = path_1.default.resolve(process.cwd(), `${mergeConfig?.ws?.websocket_path}${mergeConfig?.ws?.websocket_path.endsWith('.ts') ? '' : '.ts'}`);
