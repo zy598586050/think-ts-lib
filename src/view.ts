@@ -18,6 +18,7 @@ let viteInstance: any
 /**
  * .vue 文件转 html
  * @param url .vue文件路径
+ * @param data 数据
  * @returns 
  */
 export const vueRenderToString = async (url: string, data: Object) => {
@@ -74,6 +75,7 @@ export const vueRenderToString = async (url: string, data: Object) => {
 /**
  * .jsx 文件转 html
  * @param url .jsx文件路径
+ * @param data 数据
  * @returns 
  */
 export const reactRenderToString = async (url: string, data: Object) => {
@@ -93,5 +95,33 @@ export const reactRenderToString = async (url: string, data: Object) => {
     const appContent = renderReactToString(App)
     html = html.replace(`<!--ssr-outlet-->`, appContent)
     html = html.replace(`<!--ssr-outlet-->`, `<h2>待完善...</h2>`)
+    return html
+}
+
+/**
+ * layui的html文件
+ * @param url .html文件路径
+ * @param data 数据
+ * @returns 
+ */
+export const layuiRenderToString = async (url: string, data: Object) => {
+    const htmlPath = path.resolve(process.cwd(), `${getConfig().app.static_path}/index.html`)
+    let html = fs.readFileSync(htmlPath, 'utf-8')
+    url = url.startsWith('/') ? url : `/${url}`
+    const layuiPath = path.resolve(process.cwd(), `${getConfig().app.view_path}${url}${url.endsWith('.html') ? '' : '.html'}`)
+    let layuiHtml = fs.readFileSync(layuiPath, 'utf-8')
+    // 绑定结构
+    const regDiv = /<template\b[^>]*>([\s\S]*?)<\/template>/i
+    html = html.replace(`<!--ssr-outlet-->`, regDiv.exec(layuiHtml)?.[1] || '')
+    // 绑定样式
+    const regStyle = /<style\b[^>]*>([\s\S]*?)<\/style>/i
+    html = html.replace(`<!--ssr-style-->`, `<link href="//unpkg.com/layui@2.9.6/dist/css/layui.css" rel="stylesheet"><style>${regStyle.exec(layuiHtml)?.[1] || ''}</style>`)
+    // 绑定脚本
+    html = html.replace(`<!--ssr-script-->`, `<script src="//unpkg.com/layui@2.9.6/dist/layui.js"></script>`)
+    // 绑定数据
+    layuiHtml = layuiHtml.replace(`<!--ssr-data-->`, JSON.stringify(data))
+    // 绑定layui脚本
+    const regScript = /<script\b(?![^>]*type="text\/html")[^>]*>([\s\S]*?)<\/script>/i
+    html = html.replace(`<!--ssr-layui-script-->`, `<script>${regScript.exec(layuiHtml)?.[1] || ''}</script>`)
     return html
 }

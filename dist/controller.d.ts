@@ -4,7 +4,7 @@ import ThinkDb from './thinkdb';
 import ThinkEDb from './elasticsearch';
 import ThinkRDb from './thinkredis';
 import ThinkMDb from './mongodb';
-type TMPType = 'vue' | 'react';
+type TMPType = 'vue' | 'react' | 'layui';
 export declare class Controller {
     /**
      * 返回成功的Json数据

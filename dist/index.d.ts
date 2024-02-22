@@ -51,7 +51,7 @@ declare const _default: {
     };
     ApiException: (msg?: string, errorCode?: number, statusCode?: number) => void;
     GetParams: (ctx: Context, validate?: boolean, validate_path?: string | undefined) => any;
-    View: (url: string, data?: Object, type?: "vue" | "react") => Promise<{
+    View: (url: string, data?: Object, type?: "vue" | "react" | "layui") => Promise<{
         body: string;
         status: number;
     } | undefined>;

@@ -133,8 +133,8 @@ class Controller {
      * @returns
      */
     async View(url, data = {}, type = 'vue') {
+        let body = '';
         if (type === 'vue') {
-            let body = '';
             try {
                 body = await (0, view_1.vueRenderToString)(url, data);
             }
@@ -149,9 +149,22 @@ class Controller {
             return { body, status: 200 };
         }
         else if (type === 'react') {
-            let body = '';
             try {
                 body = await (0, view_1.reactRenderToString)(url, data);
+            }
+            catch (error) {
+                console.log(error);
+                throw new exception_1.HttpException({
+                    msg: '视图文件解析失败',
+                    errorCode: errorcode_1.ErrorCode.ERROR_VIEW,
+                    statusCode: 404
+                });
+            }
+            return { body, status: 200 };
+        }
+        else if (type === 'layui') {
+            try {
+                body = await (0, view_1.layuiRenderToString)(url, data);
             }
             catch (error) {
                 console.log(error);

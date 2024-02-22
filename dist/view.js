@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.reactRenderToString = exports.vueRenderToString = void 0;
+exports.layuiRenderToString = exports.reactRenderToString = exports.vueRenderToString = void 0;
 /*
  * @Author: zhangyu
  * @Date: 2023-10-28 16:59:04
@@ -22,6 +22,7 @@ let viteInstance;
 /**
  * .vue 文件转 html
  * @param url .vue文件路径
+ * @param data 数据
  * @returns
  */
 const vueRenderToString = async (url, data) => {
@@ -78,6 +79,7 @@ exports.vueRenderToString = vueRenderToString;
 /**
  * .jsx 文件转 html
  * @param url .jsx文件路径
+ * @param data 数据
  * @returns
  */
 const reactRenderToString = async (url, data) => {
@@ -100,3 +102,31 @@ const reactRenderToString = async (url, data) => {
     return html;
 };
 exports.reactRenderToString = reactRenderToString;
+/**
+ * layui的html文件
+ * @param url .html文件路径
+ * @param data 数据
+ * @returns
+ */
+const layuiRenderToString = async (url, data) => {
+    const htmlPath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.static_path}/index.html`);
+    let html = fs_1.default.readFileSync(htmlPath, 'utf-8');
+    url = url.startsWith('/') ? url : `/${url}`;
+    const layuiPath = path_1.default.resolve(process.cwd(), `${(0, config_1.getConfig)().app.view_path}${url}${url.endsWith('.html') ? '' : '.html'}`);
+    let layuiHtml = fs_1.default.readFileSync(layuiPath, 'utf-8');
+    // 绑定结构
+    const regDiv = /<template\b[^>]*>([\s\S]*?)<\/template>/i;
+    html = html.replace(`<!--ssr-outlet-->`, regDiv.exec(layuiHtml)?.[1] || '');
+    // 绑定样式
+    const regStyle = /<style\b[^>]*>([\s\S]*?)<\/style>/i;
+    html = html.replace(`<!--ssr-style-->`, `<link href="//unpkg.com/layui@2.9.6/dist/css/layui.css" rel="stylesheet"><style>${regStyle.exec(layuiHtml)?.[1] || ''}</style>`);
+    // 绑定脚本
+    html = html.replace(`<!--ssr-script-->`, `<script src="//unpkg.com/layui@2.9.6/dist/layui.js"></script>`);
+    // 绑定数据
+    layuiHtml = layuiHtml.replace(`<!--ssr-data-->`, JSON.stringify(data));
+    // 绑定layui脚本
+    const regScript = /<script\b(?![^>]*type="text\/html")[^>]*>([\s\S]*?)<\/script>/i;
+    html = html.replace(`<!--ssr-layui-script-->`, `<script>${regScript.exec(layuiHtml)?.[1] || ''}</script>`);
+    return html;
+};
+exports.layuiRenderToString = layuiRenderToString;

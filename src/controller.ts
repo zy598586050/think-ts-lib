@@ -9,13 +9,13 @@ import { HttpException } from './exception'
 import { getConfig } from './config'
 import { ErrorCode } from './errorcode'
 import { Validate } from './validate'
-import { vueRenderToString, reactRenderToString } from './view'
+import { vueRenderToString, reactRenderToString, layuiRenderToString } from './view'
 import ThinkDb from './thinkdb'
 import ThinkEDb from './elasticsearch'
 import ThinkRDb from './thinkredis'
 import ThinkMDb from './mongodb'
 
-type TMPType = 'vue' | 'react'
+type TMPType = 'vue' | 'react' | 'layui'
 
 export class Controller {
     /**
@@ -112,8 +112,8 @@ export class Controller {
      * @returns 
      */
     async View(url: string, data: Object = {}, type: TMPType = 'vue') {
+        let body = ''
         if (type === 'vue') {
-            let body = ''
             try {
                 body = await vueRenderToString(url, data)
             } catch (error) {
@@ -126,9 +126,20 @@ export class Controller {
             }
             return { body, status: 200 }
         } else if (type === 'react') {
-            let body = ''
             try {
                 body = await reactRenderToString(url, data)
+            } catch (error) {
+                console.log(error)
+                throw new HttpException({
+                    msg: '视图文件解析失败',
+                    errorCode: ErrorCode.ERROR_VIEW,
+                    statusCode: 404
+                })
+            }
+            return { body, status: 200 }
+        } else if (type === 'layui') {
+            try {
+                body = await layuiRenderToString(url, data)
             } catch (error) {
                 console.log(error)
                 throw new HttpException({
